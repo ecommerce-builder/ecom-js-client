@@ -1,6 +1,6 @@
 {
   "name": "ecom-js-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Ecom JS Client",
   "main": "dist/index.node.cjs.js",
   "browser": "dist/index.cjs.js",
@@ -14,14 +14,30 @@
     "dist/index.cjs.js",
     "dist/index.esm.js"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:andyfusniakteam/ecom-js-client.git"
+  },
+  "nyc": {
+    "include": [
+      "**"
+    ],
+    "exclude": [
+      "coverage/**",
+      "dist/**",
+      "rollup.config.js",
+      "test/**"
+    ]
+  },
   "author": "Andy Fusniak",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@babel/core": "^7.1.2",
+    "@babel/core": "^7.1.5",
     "chai": "^4.2.0",
+    "chai-uuid": "^1.0.6",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
-    "rollup": "^0.66.6",
+    "rollup": "^0.67.0",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-json": "^3.1.0",
@@ -29,6 +45,6 @@
     "rollup-plugin-node-resolve": "^3.4.0"
   },
   "dependencies": {
-    "node-fetch": "^2.2.0"
+    "node-fetch": "^2.2.1"
   }
 }
