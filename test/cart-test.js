@@ -1,8 +1,13 @@
 const chai = require('chai');
 const assert = chai.assert;
-
 EcomClient = require('../lib/index');
 
+const firebase = require('@firebase/app').default;
+require('@firebase/auth');
+
+const fbConfig = require('../firebase-config.json');
+
+var userCredential;
 var ecom;
 var cart;
 
@@ -10,11 +15,30 @@ describe('Ecom Client SDK', async () => {
   before(async () => {
   });
 
-  it('should create a new ecom client', function(done) {
-    ecom = new EcomClient('http://localhost:9000');
-    done();
+  it('should sign-in annoymously', async function() {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(fbConfig);
+      }
+
+      userCredential = await firebase.auth().signInAnonymously();
+    } catch (err) {
+      throw err;
+    }
   });
 
+  it('should create a new ecom client', async function() {
+    try {
+      ecom = new EcomClient('http://localhost:8080');
+      let idTokenResult = await userCredential.user.getIdTokenResult();
+
+      // save the JWT in the JS Client
+      ecom.setJWT(idTokenResult.token);
+      ecom.setCustomerUUID(idTokenResult.claims.cuuid);
+    } catch (err) {
+      throw err;
+    }
+  });
 
   it('should create a new cart', async function() {
     cart = await ecom.createCart();

@@ -1,6 +1,10 @@
 const chai = require('chai');
 chai.use(require('chai-uuid'));
 const assert = chai.assert;
+const firebase = require('@firebase/app').default;
+require('@firebase/auth');
+
+const fbConfig = require('../firebase-config.json');
 
 EcomClient = require('../lib/index');
 
@@ -10,23 +14,47 @@ var addrA; // ecom.Address type
 var addrB;
 var addrC;
 
-const TEST_EMAIL = 'test2@example.com'
+const TEST_EMAIL = 'test711-bc@example.com'
+const TEST_PASSWORD = 'secretsauce';
+
+var userCredential;
+var idTokenResult;
 
 describe('Ecom Client SDK', async () => {
   it('should create a new ecom client', function(done) {
-    ecom = new EcomClient('http://localhost:9000');
+    ecom = new EcomClient('http://localhost:8080');
     done();
   });
 
   it('should create a new customer', async function() {
-    customer = await ecom.createCustomer(TEST_EMAIL, "secret", "Joe", "Bloggs");
+    let c = await ecom.createCustomer(TEST_EMAIL, TEST_PASSWORD, "Joe", "Bloggs");
 
-    assert.uuid(customer.customerUUID, 'v4');
-    assert.strictEqual(customer.firstname, 'Joe');
-    assert.strictEqual(customer.lastname, 'Bloggs')
-    assert.strictEqual(customer.email, TEST_EMAIL)
-    assert.typeOf(customer.created, 'Date');
-    assert.typeOf(customer.modified, 'Date');
+    assert.uuid(c.customerUUID, 'v4');
+    assert.strictEqual(c.firstname, 'Joe');
+    assert.strictEqual(c.lastname, 'Bloggs')
+    assert.strictEqual(c.email, TEST_EMAIL)
+    assert.typeOf(c.created, 'Date');
+    assert.typeOf(c.modified, 'Date');
+  });
+
+  it('should sign-in using Firebase auth', async function() {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(fbConfig);
+      }
+
+      userCredential = await firebase.auth().signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD);
+
+      idTokenResult = await userCredential.user.getIdTokenResult();
+
+      // save the JWT in the JS Client
+      ecom.setJWT(idTokenResult.token);
+      ecom.setCustomerUUID(idTokenResult.claims.cuuid);
+
+      customer = await ecom.MakeCustomer(userCredential);
+    } catch (err) {
+      throw err;
+    }
   });
 
   it('should create a new address A for the new customer', async function() {
