@@ -5,8 +5,17 @@ EcomClient = require('../lib/index');
 const firebase = require('@firebase/app').default;
 require('@firebase/auth');
 
+const fetch = require('node-fetch');
+
+//sslRootCAs = require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
+//sslRootCAs
+//  .inject()
+//  .addFile(__dirname + '/../certs/api_spycameracctv_com.crt')
+//  .addFile(__dirname + '/../certs/api_spycameracctv_com.ca-bundle');
+
 const fbConfig = require('../firebase-config.json');
 
+const TEST_ENDPOINT = process.env.TEST_ENDPOINT;
 var userCredential;
 var ecom;
 var cart;
@@ -29,11 +38,15 @@ describe('Ecom Client SDK', async () => {
 
   it('should create a new ecom client', async function() {
     try {
-      ecom = new EcomClient('http://localhost:8080');
+      ecom = new EcomClient({
+          fetch,
+          endpoint: TEST_ENDPOINT
+      });
       let idTokenResult = await userCredential.user.getIdTokenResult();
 
       // save the JWT in the JS Client
       ecom.setJWT(idTokenResult.token);
+      console.log(idTokenResult.token);
       ecom.setCustomerUUID(idTokenResult.claims.cuuid);
     } catch (err) {
       throw err;
@@ -44,7 +57,7 @@ describe('Ecom Client SDK', async () => {
     cart = await ecom.createCart();
 
     let items = cart.getItems();
-    let count = cart.itemCount();
+    let count = cart.countItems();
 
     assert.isEmpty(cart.getItems());
     assert.strictEqual(count, 0);
@@ -54,7 +67,7 @@ describe('Ecom Client SDK', async () => {
     await cart.addItem('DESK', 2);
 
     let items = cart.getItems();
-    let count = cart.itemCount();
+    let count = cart.countItems();
 
     assert.strictEqual(count, 1);
 
@@ -69,7 +82,7 @@ describe('Ecom Client SDK', async () => {
     await cart.addItem('TV', 5);
 
     let items = cart.getItems();
-    let count = cart.itemCount();
+    let count = cart.countItems();
 
     assert.strictEqual(count, 2);
 
@@ -90,7 +103,7 @@ describe('Ecom Client SDK', async () => {
     await cart.addItem('WATER', 1);
 
     let items = cart.getItems();
-    let count = cart.itemCount();
+    let count = cart.countItems();
 
     assert.strictEqual(count, 3);
 
@@ -117,7 +130,7 @@ describe('Ecom Client SDK', async () => {
     await cart.updateItemQty('WATER', 2);
 
     let items = cart.getItems();
-    let count = cart.itemCount();
+    let count = cart.countItems();
 
     assert.strictEqual(count, 3);
 
@@ -151,7 +164,7 @@ describe('Ecom Client SDK', async () => {
     assert.strictEqual(await cart.removeItem('DESK'), true);
 
     let items = cart.getItems();
-    let count = cart.itemCount();
+    let count = cart.countItems();
 
     assert.strictEqual(count, 2);
 
@@ -172,6 +185,6 @@ describe('Ecom Client SDK', async () => {
     await cart.emptyAllItems();
 
     assert.isEmpty(cart.getItems());
-    assert.strictEqual(cart.itemCount(), 0);
+    assert.strictEqual(cart.countItems(), 0);
   });
 });

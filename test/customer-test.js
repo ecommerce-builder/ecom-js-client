@@ -4,17 +4,23 @@ const assert = chai.assert;
 const firebase = require('@firebase/app').default;
 require('@firebase/auth');
 
+//sslRootCAs = require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
+//sslRootCAs.inject();
+
+const fetch = require('node-fetch');
+
 const fbConfig = require('../firebase-config.json');
 
 EcomClient = require('../lib/index');
 
+const TEST_ENDPOINT = process.env.TEST_ENDPOINT;
 var ecom;
 var customer;
 var addrA; // ecom.Address type
 var addrB;
 var addrC;
 
-const TEST_EMAIL = 'test711-bc@example.com'
+const TEST_EMAIL = process.env.TEST_EMAIL;
 const TEST_PASSWORD = 'secretsauce';
 
 var userCredential;
@@ -22,7 +28,10 @@ var idTokenResult;
 
 describe('Ecom Client SDK', async () => {
   it('should create a new ecom client', function(done) {
-    ecom = new EcomClient('http://localhost:8080');
+    ecom = new EcomClient({
+        fetch,
+        endpoint: TEST_ENDPOINT
+    });
     done();
   });
 
@@ -49,6 +58,7 @@ describe('Ecom Client SDK', async () => {
 
       // save the JWT in the JS Client
       ecom.setJWT(idTokenResult.token);
+      console.log(idTokenResult.token);
       ecom.setCustomerUUID(idTokenResult.claims.cuuid);
 
       customer = await ecom.MakeCustomer(userCredential);

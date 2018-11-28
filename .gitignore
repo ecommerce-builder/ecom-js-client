@@ -1,5 +1,6 @@
 .DS_Store
 .nyc_output/
+certs/
 coverage/
 dist/
 firebase-config.json
