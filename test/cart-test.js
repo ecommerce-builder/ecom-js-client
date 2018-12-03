@@ -6,6 +6,7 @@ const firebase = require('@firebase/app').default;
 require('@firebase/auth');
 
 const fetch = require('node-fetch');
+global.fetch = fetch;
 
 //sslRootCAs = require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
 //sslRootCAs

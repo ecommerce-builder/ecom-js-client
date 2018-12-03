@@ -1,4 +1,7 @@
 # CHANGELOG
+## 1.5.0 (3 Dec 2018)
++ .babelrc uses builtin usage to avoid regeneratorRuntime errors
++ fetch dep injection removed in favour of global.fetch added by node tests
 
 ## 1.4.0 (3 Dec 2018)
 + Tests uses anon signin as API now expects a JWT for all users

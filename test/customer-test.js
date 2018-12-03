@@ -8,6 +8,7 @@ require('@firebase/auth');
 //sslRootCAs.inject();
 
 const fetch = require('node-fetch');
+global.fetch = fetch;
 
 const fbConfig = require('../firebase-config.json');
 

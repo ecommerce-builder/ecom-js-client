@@ -1,13 +1,16 @@
 'use strict';
 
 class Cart {
+  _endpoint: string;
+  _token: string;
+  cartUuid: string;
+  items: Array;
+
   constructor(endpoint, token, cartUuid) {
-    Object.assign(this, {
-      _endpoint: endpoint,
-      _token: token,
-      cartUuid,
-      items: [],
-    });
+    this._endpoint = endpoint;
+    this._token = token;
+    this.cartUuid = cartUuid;
+    this.items = [];
   }
 
   getItems() {
@@ -273,7 +276,6 @@ class Customer {
   async createAddress(typ, contactName, addr1, addr2, city, county, postcode, country) {
     try {
       let uri = `${this._endpoint}/customers/${this.customerUUID}/addresses`;
-      console.log(uri);
       let res = await fetch(uri, {
         method: 'POST',
         body: JSON.stringify({
@@ -539,7 +541,7 @@ class EcomClient {
     }
   }
 
-  async makeCustomer(userCredential) {
+  async MakeCustomer(userCredential) {
     try {
       let user = userCredential.user;
       let idTokenResult = await userCredential.user.getIdTokenResult();

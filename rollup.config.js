@@ -11,12 +11,7 @@ const plugins = [
   replace({
     'ECOM_VERSION': JSON.stringify(pkg.version)
   }),
-  babel({
-    //plugins: ['@babel/transform-runtime'],
-    runtimeHelpers: true,
-    //externalHelpers: true,
-    exclude: 'node_modules/**', // only transpile our source code
-  }),
+  babel(),
 ];
 
 const external = Object.keys(
@@ -66,7 +61,6 @@ export default [
         format: 'umd',
         sourcemap: false,
         name: 'EcomClient',
-        // intro: "var _regeneratorRuntime = require('regenerator-runtime');\n",
       },
     ],
     plugins: [...plugins, uglify()]
@@ -80,7 +74,6 @@ export default [
         format: 'umd',
         sourcemap: 'inline',
         name: 'EcomClient',
-        intro: "var _regeneratorRuntime = require('regenerator-runtime');\n",
       },
     ],
     plugins: [...plugins]
