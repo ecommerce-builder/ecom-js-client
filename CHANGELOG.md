@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 1.4.0 (3 Dec 2018)
++ Tests uses anon signin as API now expects a JWT for all users
+
 ## 1.3.0 (28 Nov 2018)
 + Main library uses dependency injection to push in fetch function
 + Test uses environment variables for host, email and endpoint URL

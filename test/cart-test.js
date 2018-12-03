@@ -47,7 +47,7 @@ describe('Ecom Client SDK', async () => {
       // save the JWT in the JS Client
       ecom.setJWT(idTokenResult.token);
       console.log(idTokenResult.token);
-      ecom.setCustomerUUID(idTokenResult.claims.cuuid);
+      //ecom.setCustomerUUID(idTokenResult.claims.cuuid);
     } catch (err) {
       throw err;
     }

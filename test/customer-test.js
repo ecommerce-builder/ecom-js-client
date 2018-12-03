@@ -14,6 +14,7 @@ const fbConfig = require('../firebase-config.json');
 EcomClient = require('../lib/index');
 
 const TEST_ENDPOINT = process.env.TEST_ENDPOINT;
+var userCredential;
 var ecom;
 var customer;
 var addrA; // ecom.Address type
@@ -27,12 +28,33 @@ var userCredential;
 var idTokenResult;
 
 describe('Ecom Client SDK', async () => {
-  it('should create a new ecom client', function(done) {
-    ecom = new EcomClient({
+  it('should sign-in annoymously', async function() {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(fbConfig);
+      }
+
+      userCredential = await firebase.auth().signInAnonymously();
+    } catch (err) {
+      throw err;
+    }
+  });
+
+  it('should create a new ecom client', async function() {
+    try {
+      ecom = new EcomClient({
         fetch,
         endpoint: TEST_ENDPOINT
-    });
-    done();
+      });
+
+      let idTokenResult = await userCredential.user.getIdTokenResult();
+
+      // save the JWT in the JS Client
+      ecom.setJWT(idTokenResult.token);
+      console.log(idTokenResult.token);
+    } catch (err) {
+        throw err;
+    }
   });
 
   it('should create a new customer', async function() {
