@@ -84,7 +84,7 @@ describe('Ecom Client SDK', async () => {
       console.log(idTokenResult.token);
       ecom.setCustomerUUID(idTokenResult.claims.cuuid);
 
-      customer = await ecom.MakeCustomer(userCredential);
+      customer = await ecom.makeCustomer(userCredential);
     } catch (err) {
       throw err;
     }

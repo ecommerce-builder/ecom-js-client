@@ -1,4 +1,8 @@
 # CHANGELOG
+## 1.6.0 (21 Jan 2019)
++ Fix broken unit test
++ Update outdated packages
+
 ## 1.5.0 (3 Dec 2018)
 + .babelrc uses builtin usage to avoid regeneratorRuntime errors
 + fetch dep injection removed in favour of global.fetch added by node tests
