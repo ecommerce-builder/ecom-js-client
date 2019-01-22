@@ -1,12 +1,13 @@
 {
   "name": "@ecommerce-builder/ecom-js-client",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Ecom JS Client",
   "main": "dist/index.node.cjs.js",
   "browser": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "scripts": {
-    "build": "rollup -c",
+    "clean": "rimraf dist",
+    "build": "rimraf dist && rollup -c",
     "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=https://api.spycameracctv.com TEST_EMAIL=a353@test.com nyc --all --clean --reporter=text --reporter=html mocha --slow 2000 test"
   },
   "files": [
@@ -46,6 +47,7 @@
     "cross-env": "^5.2.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
+    "rimraf": "^2.6.3",
     "rollup": "^1.1.2",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.2.0",

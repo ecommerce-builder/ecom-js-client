@@ -11,14 +11,11 @@ const plugins = [
   replace({
     'ECOM_VERSION': JSON.stringify(pkg.version)
   }),
-  babel(),
 ];
 
 const external = Object.keys(
   Object.assign({}, pkg.peerDependencies, pkg.dependencies)
 );
-
-//console.log(external);
 
 export default [
   /**
@@ -36,20 +33,6 @@ export default [
   },
 
   /**
-   * Node.js build
-   */
-  //{
-  //  input: 'lib/index.js',
-  //  treeshake: false,
-  //  output: [
-  //    { file: pkg.main, format: 'cjs', sourcemap: false },
-  //  ],
-  //  plugins,
-  //  external,
-  //},
-
-
-  /**
    * Library build
    */
   {
@@ -63,7 +46,7 @@ export default [
         name: 'EcomClient',
       },
     ],
-    plugins: [...plugins, uglify()]
+    plugins: [...plugins, babel(), uglify()]
   },
   {
     input: 'lib/index.js',
@@ -76,6 +59,6 @@ export default [
         name: 'EcomClient',
       },
     ],
-    plugins: [...plugins]
+    plugins: [...plugins, babel()]
   }
 ];

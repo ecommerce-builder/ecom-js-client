@@ -1,4 +1,8 @@
 # CHANGELOG
+## 1.7.0 (22 Jan 2019)
++ No longer transpiles CJS and ESM libraries. Only for UMD build.
++ Remove unnecessary test.js from from lib dir
+
 ## 1.6.0 (21 Jan 2019)
 + Fix broken unit test
 + Update outdated packages
