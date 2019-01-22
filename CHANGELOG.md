@@ -1,4 +1,7 @@
 # CHANGELOG
+## 1.7.1 (22 Jan 2019)
++ Remove use strict from library as its added automatically by rollup
+
 ## 1.7.0 (22 Jan 2019)
 + No longer transpiles CJS and ESM libraries. Only for UMD build.
 + Remove unnecessary test.js from from lib dir
