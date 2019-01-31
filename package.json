@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "rimraf dist && rollup -c",
-    "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=http://localhost:8080 TEST_EMAIL=andy+1037@andyfusniak.com nyc --all --clean --reporter=text --reporter=html mocha --timeout 15000 --slow 3000 test"
+    "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=http://localhost:8080 TEST_EMAIL=andy+352@andyfusniak.com nyc --all --clean --reporter=text --reporter=html mocha --timeout 15000 --slow 3000 test"
   },
   "files": [
     "dist/index.node.cjs.js",
