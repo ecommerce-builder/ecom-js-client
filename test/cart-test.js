@@ -21,7 +21,7 @@ var userCredential;
 var ecom;
 var cart;
 
-describe('Ecom Client SDK', async () => {
+describe('Cart', async () => {
   before(async () => {
   });
 
