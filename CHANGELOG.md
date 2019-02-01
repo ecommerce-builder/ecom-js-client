@@ -1,4 +1,7 @@
 # CHANGELOG
+## 1.8.0 (1 Feb 2019)
++ Catalog management. Handling of hierarchical data.
+
 ## 1.7.1 (22 Jan 2019)
 + Remove use strict from library as its added automatically by rollup
 
