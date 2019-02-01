@@ -28,7 +28,7 @@ const TEST_PASSWORD = 'secretsauce';
 var userCredential;
 var idTokenResult;
 
-describe('Ecom Client SDK', async () => {
+describe('Customer', async () => {
   it('should sign-in annoymously', async function() {
     try {
       if (!firebase.apps.length) {
