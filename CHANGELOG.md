@@ -1,4 +1,7 @@
 # CHANGELOG
+## 1.8.1 (1 Mar 2019)
++ Fix findCategoryByPath function assumes no leading forwardslash on path names.
+
 ## 1.8.0 (1 Feb 2019)
 + Catalog management. Handling of hierarchical data.
 
