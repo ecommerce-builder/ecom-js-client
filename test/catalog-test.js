@@ -17,7 +17,6 @@ const TEST_EMAIL = process.env.TEST_EMAIL;
 var catalog;
 
 describe('Catalog', async () => {
-
   it('should sign-in annoymously', async function() {
     try {
       if (!firebase.apps.length) {
@@ -50,64 +49,24 @@ describe('Catalog', async () => {
   it('should load the nestedset', async function() {
     try {
       catalog = await ecom.createCatalog();
-
-      assert.strictEqual(catalog._nestedset, undefined);
-
       await catalog.load();
 
-      assert.isArray(catalog._nestedset);
-      assert.lengthOf(catalog._nestedset, 14);
-      let expected = [
-        { id: 1, parent: null, segment: 'a', path: 'a', name: 'ประเภท A', lft: 1, rgt: 28, depth: 0, },
-        { id: 2, parent: 1, segment: 'b', path: 'a/b', name: 'ประเภท B', lft: 2, rgt: 5, depth: 1, },
-        { id: 3, parent: 2, segment: 'e', path: 'a/b/e', name: 'ประเภท E', lft: 3, rgt: 4, depth: 2, },
-        { id: 4, parent: 1, segment: 'c', path: 'a/c', name: 'ประเภท C', lft: 6, rgt: 19, depth: 1, },
-        { id: 5, parent: 4, segment: 'f', path: 'a/c/f', name: 'ประเภท F', lft: 7, rgt: 16, depth: 2, },
-        { id: 6, parent: 5, segment: 'i', path: 'a/c/f/i', name: 'ประเภท I', lft: 8, rgt: 9, depth: 3, },
-        { id: 7, parent: 5, segment: 'j', path: 'a/c/f/j', name: 'ประเภท J', lft: 10, rgt: 15, depth: 3, },
-        { id: 8, parent: 7, segment: 'm', path: 'a/c/f/j/m', name: 'ประเภท M', lft: 11, rgt: 12, depth: 4, },
-        { id: 9, parent: 7, segment: 'n', path: 'a/c/f/j/n', name: 'ประเภท N', lft: 13, rgt: 14, depth: 4, },
-        { id: 10, parent: 4, segment: 'g', path: 'a/c/g', name: 'ประเภท G', lft: 17, rgt: 18, depth: 2, },
-        { id: 11, parent: 1, segment: 'd', path: 'a/d', name: 'ประเภท D', lft: 20, rgt: 27, depth: 1, },
-        { id: 12, parent: 11, segment: 'h', path: 'a/d/h', name: 'ประเภท H', lft: 21, rgt: 26, depth: 2, },
-        { id: 13, parent: 12, segment: 'k', path: 'a/d/h/k', name: 'ประเภท K', lft: 22, rgt: 23, depth: 3, },
-        { id: 14, parent: 12, segment: 'l', path: 'a/d/h/l', name: 'ประเภท L', lft: 24, rgt: 25, depth: 3, },
-      ];
-
-      catalog._nestedset.forEach(function(ns, i) {
-        assert.deepInclude(ns, expected[i]);
-      });
-    } catch (err) {
-      throw err;
-    }
-  });
-
-  it('should build catalog hierarchy using internal nestedset', function() {
-    try {
-      assert.strictEqual(catalog._rootCategory, null);
-      catalog.build();
-      assert.isObject(catalog.rootCategory());
-
-      let rootCategory = catalog.rootCategory();
-      assert.isObject(rootCategory);
-
-      let expected = `segment: a	 path: a	name: ประเภท A	lft: 1	 rgt: 28
-segment: b	 path: a/b	name: ประเภท B	lft: 2	 rgt: 5
-segment: e	 path: a/b/e	name: ประเภท E	lft: 3	 rgt: 4
-segment: c	 path: a/c	name: ประเภท C	lft: 6	 rgt: 19
-segment: f	 path: a/c/f	name: ประเภท F	lft: 7	 rgt: 16
-segment: i	 path: a/c/f/i	name: ประเภท I	lft: 8	 rgt: 9
-segment: j	 path: a/c/f/j	name: ประเภท J	lft: 10	 rgt: 15
-segment: m	 path: a/c/f/j/m	name: ประเภท M	lft: 11	 rgt: 12
-segment: n	 path: a/c/f/j/n	name: ประเภท N	lft: 13	 rgt: 14
-segment: g	 path: a/c/g	name: ประเภท G	lft: 17	 rgt: 18
-segment: d	 path: a/d	name: ประเภท D	lft: 20	 rgt: 27
-segment: h	 path: a/d/h	name: ประเภท H	lft: 21	 rgt: 26
-segment: k	 path: a/d/h/k	name: ประเภท K	lft: 22	 rgt: 23
-segment: l	 path: a/d/h/l	name: ประเภท L	lft: 24	 rgt: 25
-`
-      let output = catalog.strDumpTree(rootCategory);
-      assert.strictEqual(output, expected);
+      //let expected = {
+      //  { id: 1, parent: null, segment: 'a', path: 'a', name: 'ประเภท A', lft: 1, rgt: 28, depth: 0, },
+      //  { id: 2, parent: 1, segment: 'b', path: 'a/b', name: 'ประเภท B', lft: 2, rgt: 5, depth: 1, },
+      //  { id: 3, parent: 2, segment: 'e', path: 'a/b/e', name: 'ประเภท E', lft: 3, rgt: 4, depth: 2, },
+      //  { id: 4, parent: 1, segment: 'c', path: 'a/c', name: 'ประเภท C', lft: 6, rgt: 19, depth: 1, },
+      //  { id: 5, parent: 4, segment: 'f', path: 'a/c/f', name: 'ประเภท F', lft: 7, rgt: 16, depth: 2, },
+      //  { id: 6, parent: 5, segment: 'i', path: 'a/c/f/i', name: 'ประเภท I', lft: 8, rgt: 9, depth: 3, },
+      //  { id: 7, parent: 5, segment: 'j', path: 'a/c/f/j', name: 'ประเภท J', lft: 10, rgt: 15, depth: 3, },
+      //  { id: 8, parent: 7, segment: 'm', path: 'a/c/f/j/m', name: 'ประเภท M', lft: 11, rgt: 12, depth: 4, },
+      //  { id: 9, parent: 7, segment: 'n', path: 'a/c/f/j/n', name: 'ประเภท N', lft: 13, rgt: 14, depth: 4, },
+      //  { id: 10, parent: 4, segment: 'g', path: 'a/c/g', name: 'ประเภท G', lft: 17, rgt: 18, depth: 2, },
+      //  { id: 11, parent: 1, segment: 'd', path: 'a/d', name: 'ประเภท D', lft: 20, rgt: 27, depth: 1, },
+      //  { id: 12, parent: 11, segment: 'h', path: 'a/d/h', name: 'ประเภท H', lft: 21, rgt: 26, depth: 2, },
+      //  { id: 13, parent: 12, segment: 'k', path: 'a/d/h/k', name: 'ประเภท K', lft: 22, rgt: 23, depth: 3, },
+      //  { id: 14, parent: 12, segment: 'l', path: 'a/d/h/l', name: 'ประเภท L', lft: 24, rgt: 25, depth: 3, },
+      //};
     } catch (err) {
       throw err;
     }
@@ -116,7 +75,7 @@ segment: l	 path: a/d/h/l	name: ประเภท L	lft: 24	 rgt: 25
   it('should find a category within a category', function() {
     let root = catalog.rootCategory();
 
-    b = root.findCategory('b');
+    b = root.find('b');
 
     // should get back the b category node
     // segment: b	 path: /a/b	name: ประเภท B	lft: 2	 rgt: 5
@@ -124,14 +83,12 @@ segment: l	 path: a/d/h/l	name: ประเภท L	lft: 24	 rgt: 25
     assert.strictEqual(b.segment, 'b');
     assert.strictEqual(b.path, 'a/b');
     assert.strictEqual(b.name, 'ประเภท B');
-    assert.strictEqual(b.lft, 2);
-    assert.strictEqual(b.rgt, 5);
   });
 
   it('should not find a category within a category', function() {
     let root = catalog.rootCategory();
 
-    z = root.findCategory('z');
+    z = root.find('z');
 
     // should not get back a non-existent category node
     assert.isNull(z);
@@ -147,11 +104,9 @@ segment: l	 path: a/d/h/l	name: ประเภท L	lft: 24	 rgt: 25
       assert.strictEqual(n.segment, 'n');
       assert.strictEqual(n.path, 'a/c/f/j/n');
       assert.strictEqual(n.name, 'ประเภท N');
-      assert.strictEqual(n.lft, 13);
-      assert.strictEqual(n.rgt, 14);
 
       // ensure we found a leaf node
-      assert.strictEqual(n.rgt - n.lft, 1);
+      assert.strictEqual(n.isLeaf(), true);
     } catch (err) {
       throw err;
     }

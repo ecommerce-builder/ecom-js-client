@@ -1,4 +1,10 @@
 # CHANGELOG
+## 2.0.0 (Wed, 8 May 2019)
++ Catalog API returns hierarchical JSON with categories.
++ Removes nested set model for tree building.
++ Updated unit tests.
++ Updated npm dependencies to avoid npm audit warnings.
+
 ## 1.8.1 (1 Mar 2019)
 + Fix findCategoryByPath function assumes no leading forwardslash on path names.
 
