@@ -1,4 +1,9 @@
 # CHANGELOG
+## 2.1.0 (Thu, 9 May 2019)
++ v0.27.0 API returns products property for leaf nodes of the catalog tree.
++ Defines a new Product class that takes a single param sku in its constructor.
++ Catagory tree attaches Product instances to an Array attached to leaf nodes.
+
 ## 2.0.0 (Wed, 8 May 2019)
 + Catalog API returns hierarchical JSON with categories.
 + Removes nested set model for tree building.
