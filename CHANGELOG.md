@@ -1,4 +1,7 @@
 # CHANGELOG
+## 3.0.0 (Mon, 20 May 2019)
++ Use uuid instead of `cart_`, `addr_` or `customer_` prefixes
+
 ## 2.1.0 (Thu, 9 May 2019)
 + v0.27.0 API returns products property for leaf nodes of the catalog tree.
 + Defines a new Product class that takes a single param sku in its constructor.
