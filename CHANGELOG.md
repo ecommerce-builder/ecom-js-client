@@ -1,4 +1,8 @@
 # CHANGELOG
+## 3.0.3 (Fri, 24 May 2019)
++ Fix broken package.json causing empty npm published package.
++ Alter Cart class property cartUuid -> uuid.
+
 ## 3.0.0 (Mon, 20 May 2019)
 + Use uuid instead of `cart_`, `addr_` or `customer_` prefixes
 
