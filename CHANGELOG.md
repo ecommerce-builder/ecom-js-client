@@ -1,4 +1,7 @@
 # CHANGELOG
+## 3.2.0 (Tue 28 May 2019)
++ Load and unload products.
+
 ## 3.1.0 (Tue 28 May 2019)
 + Refactor HTTP request code to use do, get, put, post etc.
 + Use composition to pass around client instance.
