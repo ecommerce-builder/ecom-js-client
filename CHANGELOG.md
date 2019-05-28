@@ -1,4 +1,8 @@
 # CHANGELOG
+## 3.0.4 (Tue, 28 May 2019)
++ Confirmed working against API v0.37.0
++ Update deps and .babelrc to use core-js@3
+
 ## 3.0.3 (Fri, 24 May 2019)
 + Fix broken package.json causing empty npm published package.
 + Alter Cart class property cartUuid -> uuid.

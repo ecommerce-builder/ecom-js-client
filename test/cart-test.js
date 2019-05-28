@@ -64,7 +64,7 @@ describe('Cart', async () => {
     assert.strictEqual(count, 0);
   });
 
-  it('should add a 2 DESK-SKU to the cart', async function() {
+  it('should add 2 DESK-SKU to the cart', async function() {
     await cart.addItem('DESK-SKU', 2);
 
     let items = cart.getItems();

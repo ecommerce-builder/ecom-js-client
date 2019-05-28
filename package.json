@@ -1,6 +1,6 @@
 {
   "name": "@ecommerce-builder/ecom-js-client",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Ecom JS Client",
   "main": "dist/index.cjs.js",
   "browser": "dist/index.cjs.js",
@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "rimraf dist && rollup -c",
-    "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=http://localhost:8080 TEST_EMAIL=andy+1352@andyfusniak.com nyc --all --clean --reporter=text --reporter=html mocha --timeout 15000 --slow 3000 test"
+    "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=https://open247-gae.appspot.com TEST_EMAIL=andy+1215@andyfusniak.com nyc --all --clean --reporter=text --reporter=html mocha --timeout 15000 --slow 3000 test"
   },
   "files": [
     "dist/index.cjs.js",
@@ -48,7 +48,7 @@
     "mocha": "^6.1.4",
     "nyc": "^14.1.1",
     "rimraf": "^2.6.3",
-    "rollup": "^1.12.3",
+    "rollup": "^1.12.4",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^5.0.0",
@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
-    "core-js": "^2.6.8",
+    "core-js": "^3.1.3",
     "node-fetch": "^2.6.0"
   }
 }
