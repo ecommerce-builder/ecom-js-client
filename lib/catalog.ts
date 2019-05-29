@@ -4,27 +4,21 @@ import Product from './product';
 
 class Catalog {
   client: EcomClient;
-  leafCategories: Category[] | undefined;
-  nonLeafCategories: Category[] | undefined;
-  allProducts: Product[] | undefined;
+  leafCategories: Category[];
+  nonLeafCategories: Category[];
+  allProducts: Product[];
   hasProduct: any;
   root: Category | null;
+  loaded: boolean;
 
   constructor(client: EcomClient) {
     this.client = client;
-    this.leafCategories = undefined;
-    this.nonLeafCategories = undefined;
-    this.allProducts = undefined;
+    this.leafCategories = [];
+    this.nonLeafCategories = [];
+    this.allProducts = [];
     this.hasProduct = {};
     this.root = null;
-  }
-
-  strDumpTree(category: Category) {
-    let output = `segment: ${category.segment}\t path: ${category.path}\tname: ${category.name}\n`;
-    for (let i = 0; i < category.categories.length; i++) {
-      output += this.strDumpTree(category.categories[i]);
-    }
-    return output;
+    this.loaded = false;
   }
 
   getRootCategory() : Category | null {
@@ -33,7 +27,6 @@ class Catalog {
 
   /**
    * Find a Category in the tree by path
-   *
    * e.g. a/c/f/j/n
    * @returns {Category|null} object or null if not found
    */
@@ -57,9 +50,9 @@ class Catalog {
     return context;
   }
 
-  getMidRangeCategories() : object | null {
-    if (!this.nonLeafCategories) {
-      return null;
+  getMidRangeCategories() : object[] {
+    if (this.nonLeafCategories.length === 0) {
+      return [];
     }
 
     let result = this.nonLeafCategories.filter(c => {
@@ -74,9 +67,9 @@ class Catalog {
     });
   }
 
-  getBottomLevelCategories() : object | null {
-    if (!this.leafCategories) {
-      return null;
+  getBottomLevelCategories() : object[] {
+    if (this.leafCategories.length === 0) {
+      return [];
     }
 
     return this.leafCategories.map(c => {
@@ -84,16 +77,16 @@ class Catalog {
     });
   }
 
-  getAllProducts() : object | null {
-    if (!this.allProducts) {
-      return null;
+  getAllProducts() : object[] {
+    if (this.allProducts.length === 0) {
+      return [];
     }
     return this.allProducts.map(p => {
       return { sku: p.sku, path: p.path, name: p.name };
     });
   }
 
-  async load() {
+  async load(forceLoad = false) {
     function walkTree(catalog: Catalog, n: categoryData, c: Category) {
       if (n.hasOwnProperty('products') && n.products && n.products.constructor === Array) {
         n.products.forEach(function(p) {
@@ -118,9 +111,9 @@ class Catalog {
     // non-leaf categories that do not.
     function buildLeafAndNonLeaf(catalog: Catalog, c: Category) {
       if (c.isLeaf()) {
-        if (!catalog.leafCategories) {
-          catalog.leafCategories = [];
-        }
+        // if (!catalog.leafCategories) {
+        //   catalog.leafCategories = [];
+        // }
         catalog.leafCategories.push(c);
 
         // Check if this leaf category has products. If
@@ -132,17 +125,10 @@ class Catalog {
           let product = products[i];
           if (!catalog.hasProduct.hasOwnProperty(product.sku)) {
             catalog.hasProduct[product.sku] = true;
-
-            if (!catalog.allProducts) {
-              catalog.allProducts = [];
-            }
             catalog.allProducts.push(product);
           }
         }
       } else {
-        if (!catalog.nonLeafCategories) {
-          catalog.nonLeafCategories = [];
-        }
         catalog.nonLeafCategories.push(c);
       }
 
@@ -152,6 +138,9 @@ class Catalog {
     }
 
     try {
+      if ((this.loaded) && (!forceLoad)) {
+        return;
+      }
       let res = await this.client.get(`${this.client.endpoint}/catalog`);
       if (res.status >= 400) {
         let data = await res.json();
@@ -161,23 +150,38 @@ class Catalog {
 
       if (res.status === 200) {
         let tree: categoryData = await res.json();
-
-        console.log(tree);
-
         this.root = new Category(this.client, tree.segment, tree.segment, tree.name);
         walkTree(this, tree, this.root);
 
         // remove old leaf and non-leaf categories in case this method
         // has already been called.
-        this.leafCategories = undefined;
-        this.nonLeafCategories = undefined;
-        this.allProducts = undefined;
+        this.leafCategories = [];
+        this.nonLeafCategories = [];
+        this.allProducts = [];
         buildLeafAndNonLeaf(this, this.root);
+        this.loaded = true;
       }
     } catch (err) {
       console.error(err);
       throw err;
     }
+  }
+
+  unload() {
+    this.leafCategories = [];
+    this.nonLeafCategories = [];
+    this.allProducts = [];
+    this.hasProduct = {};
+    this.root = null;
+    this.loaded = false;
+  }
+
+  static strDumpTree(category: Category) {
+    let output = `segment: ${category.segment}\t path: ${category.path}\tname: ${category.name}\n`;
+    for (let i = 0; i < category.categories.length; i++) {
+      output += this.strDumpTree(category.categories[i]);
+    }
+    return output;
   }
 }
 

@@ -1,4 +1,11 @@
 # CHANGELOG
+## 4.2.0 (Wed 29 May 2019)
++ getAllProducts, getMidRangeCategories and getBottomLevelCategories always returns an Array
++ `catalog.loaded` boolean to indicate if catalog has been loaded.
++ `catalog.load(true)` to force a reload.
++ `catalog.unload()`for testing.
++ removed spurious console.log statement.
+
 ## 4.1.0 (Wed 29 May 2019)
 + Requires Ecom API version v0.39.0 and above.
 + Adds features to retrieve leaf, non-leaf categories as flat lists.
