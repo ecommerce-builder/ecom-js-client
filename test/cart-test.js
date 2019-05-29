@@ -1,6 +1,6 @@
 const chai = require('chai');
 const assert = chai.assert;
-EcomClient = require('../lib/index');
+EcomClient = require('../dist/index.cjs');
 
 const firebase = require('@firebase/app').default;
 require('@firebase/auth');

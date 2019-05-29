@@ -1,4 +1,10 @@
 # CHANGELOG
+## 4.0.0 (Wed 29 May 2019)
++ Complete conversion to Typescript.
++ Fixed unit tests expect lower case uuid for customer addresses.
++ Rollup config uses Typescript. (Babel removed).
++ Unit tests require the built distribution version for testing.
+
 ## 3.2.0 (Tue 28 May 2019)
 + Load and unload products.
 

@@ -1,10 +1,12 @@
 class Cart {
-  constructor(client, uuid) {
-    Object.assign(this, {
-      client,
-      uuid,
-      items: [],
-    });
+  client: EcomClient;
+  uuid: string;
+  items: any[];
+
+  constructor(client: EcomClient, uuid: string) {
+    this.client = client;
+    this.uuid = uuid;
+    this.items = [];
   }
 
   getItems() {
@@ -20,13 +22,12 @@ class Cart {
    * @param {string} sku
    * @param {number} qty
    */
-  async addItem(sku, qty) {
+  async addItem(sku: string, qty: number) {
     try {
       let res = await this.client.post(`${this.client.endpoint}/carts/${this.uuid}/items`, {sku, qty});
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -44,14 +45,13 @@ class Cart {
     }
   }
 
-  async removeItem(sku) {
+  async removeItem(sku: string) {
     // TODO: prevent empty value for sku otherwise it'll empty the entire cart items
     try {
       let res = await this.client.delete(`${this.client.endpoint}/carts/${this.uuid}/items/${sku}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -70,7 +70,7 @@ class Cart {
     }
   }
 
-  async updateItemQty(sku, qty) {
+  async updateItemQty(sku: string, qty: number) {
     try {
       let res = await this.client.patch(`${this.client.endpoint}/carts/${this.uuid}/items/${sku}`, { qty });
       if (res.status === 200) {
@@ -102,7 +102,6 @@ class Cart {
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -121,6 +120,19 @@ class Cart {
 
 
 class Address {
+  client: EcomClient;
+  uuid: string;
+  typ: string;
+  contactName: string;
+  addr1: string;
+  addr2: string;
+  city: string;
+  county: string;
+  postcode: string;
+  country: string;
+  created: Date;
+  modified: Date;
+
   /**
    * @param {string} client reference to the EcomClient instance
    * @param {string} typ          'billing' or 'shipping'
@@ -135,21 +147,19 @@ class Address {
    * @param {Date}   created
    * @param {Date}   modified
    */
-  constructor(client, uuid, typ, contactName, addr1, addr2, city, county, postcode, country, created, modified) {
-    Object.assign(this, {
-      client,
-      uuid,
-      typ,
-      contactName,
-      addr1,
-      addr2,
-      city,
-      county,
-      postcode,
-      country,
-      created,
-      modified,
-    });
+  constructor(client: EcomClient, uuid: string, typ: string, contactName: string, addr1: string, addr2: string, city: string, county: string, postcode: string, country: string, created: Date, modified: Date) {
+    this.client = client;
+    this.uuid = uuid;
+    this.typ = typ;
+    this.contactName = contactName;
+    this.addr1 = addr1;
+    this.addr2 = addr2;
+    this.city = city;
+    this.county = county;
+    this.postcode = postcode;
+    this.country = country;
+    this.created = created;
+    this.modified = modified;
   }
 
   async delete() {
@@ -158,7 +168,6 @@ class Address {
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
       if (res.status === 204) {
@@ -171,27 +180,24 @@ class Address {
 }
 
 class Customer {
-  /**
-   * @param {string} client reference to the EcomClient instance
-   * @param {string} uuid
-   * @param {string} uid
-   * @param {string} email
-   * @param {string} firstname
-   * @param {string} lastname
-   * @param {Date}   created
-   * @param {Date}   modified
-   */
-  constructor(client, uuid, uid, email, firstname, lastname, created, modified) {
-    Object.assign(this, {
-      client,
-      uuid,
-      uid,
-      email,
-      firstname,
-      lastname,
-      created,
-      modified,
-    });
+  client: EcomClient;
+  uuid: string;
+  uid: string;
+  email: string;
+  firstname: string;
+  lastname: string;
+  created: Date;
+  modified: Date;
+
+  constructor(client: EcomClient, uuid: string, uid: string, email: string, firstname: string, lastname: string, created: Date, modified: Date) {
+    this.client = client;
+    this.uuid = uuid;
+    this.uid = uid;
+    this.email = email;
+    this.firstname = firstname;
+    this.lastname = lastname;
+    this.created = created;
+    this.modified = modified;
   }
 
   /**
@@ -206,7 +212,7 @@ class Customer {
    * @param {string} country
    * @returns {Address}
    */
-  async createAddress(typ, contactName, addr1, addr2, city, county, postcode, country) {
+  async createAddress(typ: string, contactName: string, addr1: string, addr2: string, city: string, county: string, postcode: string, country: string) {
     try {
       let res = await this.client.post(`${this.client.endpoint}/customers/${this.uuid}/addresses`, {
         typ,
@@ -221,7 +227,6 @@ class Customer {
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -254,13 +259,12 @@ class Customer {
    * @param {string}   uuid address UUID
    * @return {Address}
    */
-  async getAddress(uuid) {
+  async getAddress(uuid: string) : Promise<Address | null> {
     try {
       let res = await this.client.get(`${this.client.endpoint}/addresses/${uuid}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -294,7 +298,6 @@ class Customer {
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -326,24 +329,82 @@ class Customer {
 }
 
 class Image {
-  constructor(client, uuid) {
-    uuid
+  client: EcomClient;
+  uuid: string;
+  sku: string;
+  path: string;
+  gsurl: string;
+  width: number;
+  height: number;
+  size: number;
+  created: Date;
+  modified: Date;
+
+  constructor(client: EcomClient, uuid: string, sku: string,
+    path: string, gsurl: string, width: number, height: number, size: number, created: Date, modified: Date) {
+    this.client = client;
+    this.uuid = uuid;
+    this.sku = sku;
+    this.path = path;
+    this.gsurl = gsurl;
+    this.width = width;
+    this.height = height;
+    this.size = size;
+    this.created = created;
+    this.modified = modified;
   }
 }
 
+type imageData = {
+  uuid: string,
+  sku: string,
+  path: string,
+  gsurl: string,
+  width: number,
+  height: number,
+  size: number,
+  created: string | Date,
+  modified: string | Date
+}
+type productData = {
+  summary: string,
+  description: string,
+  specification: string
+};
+
+type productResponseData = {
+  sku: string,
+  ean: string,
+  path: string,
+  name: string,
+  data: productData,
+  images: imageData[],
+  created: string | Date,
+  modified: string | Date
+};
+
 class Product {
-  constructor(client, sku) {
-    Object.assign(this, {
-      client,
-      sku,
-      response: undefined,
-      images: []
-    });
+  client: EcomClient;
+  sku: string;
+  ean: string | undefined;
+  path: string | undefined;
+  name: string | undefined;
+  data: productData | undefined;
+  images: Image[];
+  created: Date | undefined;
+  modified: Date | undefined;
+  loaded: boolean;
+
+  constructor(client: EcomClient, sku: string) {
+    this.client = client;
+    this.sku = sku;
+    this.images = [];
+    this.loaded = false;
   }
 
   async load(forceLoad = false) {
     try {
-      if ((this.response) && (!forceLoad)) {
+      if ((this.loaded) && (!forceLoad)) {
         return;
       }
 
@@ -351,13 +412,24 @@ class Product {
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
       if (res.status === 200) {
-        this.response = await res.json();
-        this.response.created = new Date(this.response.created);
-        this.response.modified = new Date(this.response.modified);
+        let response: productResponseData = await res.json();
+        this.ean = response.ean;
+        this.path = response.path;
+        this.name = response.name;
+        this.data = response.data;
+        this.created = new Date(response.created);
+        this.modified = new Date(response.modified);
+        this.images = [];
+        for (let i = 0; i < response.images.length; i++) {
+          let d = response.images[i];
+          let img = new Image(this.client, d.uuid, d.sku, d.path, d.gsurl,
+            d.width, d.height, d.size, new Date(d.created), new Date(d.modified))
+          this.images.push(img);
+        }
+        this.loaded = true;
       }
     } catch (err) {
       throw err;
@@ -365,37 +437,48 @@ class Product {
   }
 
   unload() {
-    this.response = undefined;
+    this.loaded = false;
+    this.ean = undefined;
+    this.path = undefined;
+    this.name = undefined;
+    this.data = undefined;
+    this.images = [];
   }
 }
 
 class Category {
-  constructor(client, segment, path, name) {
-    Object.assign(this, {
-      client,
-      segment,
-      path,
-      name,
-      parent: null,
-      products: [],
-      categories: [],
-    });
+  client: EcomClient;
+  segment: string;
+  path: string;
+  name: string;
+  parent: Category | null;
+  products: Product[];
+  categories: Category[];
+
+  constructor(client: EcomClient, segment: string, path: string, name: string) {
+    this.client = client;
+    this.segment = segment;
+    this.path = path;
+    this.name = name;
+    this.parent = null;
+    this.products = [];
+    this.categories = [];
   }
 
-  appendProduct(product) {
+  appendProduct(product: Product) {
     this.products.push(product);
   }
 
-  appendChild(category) {
+  appendChild(category: Category) {
     category.parent = this;
     this.categories.push(category);
   }
 
-  setParent(category) {
+  setParent(category: Category) {
     this.parent = category;
   }
 
-  hasCategories() {
+  hasCategories() : boolean {
     return this.categories.length > 0;
   }
 
@@ -422,7 +505,7 @@ class Category {
    * a matching segment. Runs in O(n) time.
    * @param {string} segment e.g 'shoes', 'widgets' etc
    */
-  find(segment) {
+  find(segment: string) : Category | null {
     if (!this.hasCategories()) {
       return null;
     }
@@ -434,33 +517,21 @@ class Category {
     return null;
   }
 
-  isLeaf() {
+  isLeaf() : boolean {
     return this.categories.length === 0;
-  }
-
-  /**
-   * Return an array of Category objects including this category to the root category
-   * @return {Array} an array of Category objects leading back to the root category inclusive
-   */
-  getAncesterCategories() {
-    let stack = [];
-    let current = this;
-    while (current.parent !== null) {
-      stack.push(current);
-      current = current.parent;
-    }
   }
 }
 
 class Catalog {
-  constructor(client) {
-    Object.assign(this, {
-      client,
-      _root: null,
-    });
+  client: EcomClient;
+  root: Category | null;
+
+  constructor(client: EcomClient) {
+    this.client = client;
+    this.root = null;
   }
 
-  strDumpTree(category) {
+  strDumpTree(category: Category) {
     let output = `segment: ${category.segment}\t path: ${category.path}\tname: ${category.name}\n`;
     for (let i = 0; i < category.categories.length; i++) {
       output += this.strDumpTree(category.categories[i]);
@@ -468,8 +539,8 @@ class Catalog {
     return output;
   }
 
-  rootCategory() {
-    return this._root;
+  rootCategory() : Category | null {
+    return this.root;
   }
 
   /**
@@ -478,14 +549,17 @@ class Catalog {
    * e.g. a/c/f/j/n
    * @returns {Category|null} object or null if not found
    */
-  findCategoryByPath(path) {
+  findCategoryByPath(path: string) : Category | null {
+    if (this.root === null) {
+      return null;
+    }
     // example without leading forwardslash 'a/c/f/j/n'
     let segments = path.split('/');
-    if (segments[0] !== this._root.segment) {
+    if (segments[0] !== this.root.segment) {
       return null;
     }
 
-    let context = this._root;
+    let context : Category | null = this.root;
     for (let i = 1; i < segments.length; i++) {
       context = context.find(segments[i])
       if (context === null) {
@@ -496,36 +570,35 @@ class Catalog {
   }
 
   async load() {
+    function walkTree(client: EcomClient, n: Category, c: Category) {
+      if (n.hasOwnProperty('products') && n.products.constructor === Array) {
+        n.products.forEach(function(p) {
+          c.appendProduct(new Product(client, p.sku));
+        });
+      }
+
+      if (n.hasOwnProperty('categories')) {
+        for (let i = 0; i < n.categories.length; i++) {
+          let newN = n.categories[i];
+          let newC = new Category(client, newN.segment, c.path + '/' + newN.segment, newN.name);
+          c.appendChild(newC);
+          walkTree(client, newN, newC);
+        }
+      }
+    }
+
     try {
       let res = await this.client.get(`${this.client.endpoint}/catalog`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
       if (res.status === 200) {
         let tree = await res.json();
-
-        function walkTree(client, n, c) {
-          if (n.hasOwnProperty('products') && n.products.constructor === Array) {
-            n.products.forEach(function(p) {
-              c.appendProduct(new Product(client, p.sku));
-            });
-          }
-
-          if (n.hasOwnProperty('categories')) {
-            for (let i = 0; i < n.categories.length; i++) {
-              let newN = n.categories[i];
-              let newC = new Category(client, newN.segment, c.path + '/' + newN.segment, newN.name);
-              c.appendChild(newC);
-              walkTree(client, newN, newC);
-            }
-          }
-        }
-        this._root = new Category(this.client, tree.segment, tree.segment, tree.name);
-        walkTree(this.client, tree, this._root);
+        this.root = new Category(this.client, tree.segment, tree.segment, tree.name);
+        walkTree(this.client, tree, this.root);
       }
     } catch (err) {
       console.error(err);
@@ -534,54 +607,63 @@ class Catalog {
   }
 }
 
+type ecomClientOptions = {
+  endpoint: string
+  token: string
+  customerUUID: string | undefined
+};
+
 class EcomClient {
-  constructor(opts) {
-    Object.assign(this, {
-      endpoint: opts.endpoint,
-      token: opts.token || undefined,
-      _customerUUID: opts.customerUUID | undefined,
-      catalog: undefined,
-    });
+  endpoint: string;
+  token: string;
+  customerUUID: string | undefined;
+  catalog: Catalog | null;
+
+  constructor(opts: ecomClientOptions) {
+    this.endpoint = opts.endpoint;
+    this.token = opts.token;
+    this.customerUUID = opts.customerUUID || undefined;
+    this.catalog = null;
   }
 
   static version() {
-      return ECOM_VERSION;
+      return 'ECOM_VERSION';
   }
 
-  setJWT(token) {
+  setJWT(token: string) : void {
     this.token = token;
   }
 
-  setCustomerUUID(uuid) {
-    this._customerUUID = uuid;
+  setCustomerUUID(uuid: string) : void {
+    this.customerUUID = uuid;
   }
 
-  getCustomerUUID() {
-    return this._customerUUID;
+  getCustomerUUID() : string | undefined {
+    return this.customerUUID;
   }
 
-  async get(url) {
-    return this.do(url, 'GET');
+  async get(url: string) {
+    return this.do(url, 'GET', null);
   }
 
-  async post(url, body) {
+  async post(url: string, body: object | null) : Promise<Response> {
     return this.do(url, 'POST', body);
   }
 
-  async put(url, body) {
+  async put(url: string, body: object | null) : Promise<Response> {
     return this.do(url, 'PUT', body);
   }
 
-  async patch(url, body) {
+  async patch(url: string, body: object | null) : Promise<Response> {
     return this.do(url, 'PATCH', body);
   }
 
-  async delete(url) {
-    return this.do(url, 'DELETE');
+  async delete(url: string) : Promise<Response> {
+    return this.do(url, 'DELETE', null);
   }
 
-  async do(url, method, body) {
-    let opts = {
+  async do(url: string, method: string, body: object | null) : Promise<Response> {
+    let opts : any  = {
       method,
       headers: {
         'Accept': 'application/json',
@@ -606,22 +688,21 @@ class EcomClient {
    * Create a new Catalog
    *
    */
-  createCatalog() {
+  createCatalog() : Catalog {
     this.catalog = new Catalog(this);
     return this.catalog;
   }
 
-  getCatalog() {
+  getCatalog() : Catalog | null {
     return this.catalog;
   }
 
-  async createCart() {
+  async createCart() : Promise<Cart> {
     try {
-      let res = await this.post(`${this.endpoint}/carts`);
+      let res = await this.post(`${this.endpoint}/carts`, null);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
-        e.code = data.status;
         throw e;
       }
 
@@ -642,7 +723,7 @@ class EcomClient {
    * @returns {object|null}
    *
    */
-  async createCustomer(email, password, firstname, lastname) {
+  async createCustomer(email: string, password: string, firstname: string, lastname: string) : Promise<Customer | null> {
     try {
       let res = await this.post(`${this.endpoint}/customers`, {
         email,
@@ -652,8 +733,7 @@ class EcomClient {
       });
       if (res.status >= 400) {
         let data = await res.json();
-        let e = Error(data.message)
-        e.code = data.status;
+        let e = Error(data.message);
         throw e;
       }
 
@@ -678,7 +758,7 @@ class EcomClient {
     }
   }
 
-  async makeCustomer(userCredential) {
+  async makeCustomer(userCredential: any) {
     try {
       let user = userCredential.user;
       let idTokenResult = await userCredential.user.getIdTokenResult();
@@ -689,8 +769,8 @@ class EcomClient {
         user.email,
         user.displayName.split(' ').slice(0, -1).join(' '),
         user.displayName.split(' ').slice(-1).join(' '),
-        Date.now(),
-        Date.now(),
+        new Date(Date.now()),
+        new Date(Date.now()),
       );
     } catch (err) {
       console.error(err);
@@ -699,4 +779,5 @@ class EcomClient {
   }
 }
 
-module.exports = EcomClient;
+
+export default EcomClient;

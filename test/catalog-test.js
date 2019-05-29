@@ -8,7 +8,7 @@ global.fetch = fetch;
 
 const fbConfig = require('../firebase-config.json');
 
-EcomClient = require('../lib/index');
+EcomClient = require('../dist/index.cjs');
 
 const TEST_ENDPOINT = process.env.TEST_ENDPOINT;
 const TEST_EMAIL = process.env.TEST_EMAIL;

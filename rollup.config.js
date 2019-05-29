@@ -1,15 +1,12 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import babel from 'rollup-plugin-babel';
+import typescript from 'rollup-plugin-typescript';
 import { uglify } from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 import pkg from './package.json';
 
 const plugins = [
-  resolve(),
-  commonjs(),
+  typescript(),
   replace({
-    'ECOM_VERSION': JSON.stringify(pkg.version)
+    'ECOM_VERSION': pkg.version
   }),
 ];
 
@@ -22,7 +19,7 @@ export default [
    * browser builds
    */
   {
-    input: 'lib/index.js',
+    input: 'lib/index.ts',
     treeshake: false,
     output: [
       { file: pkg.browser, format: 'cjs', sourcemap: false },
@@ -36,7 +33,7 @@ export default [
    * Library build
    */
   {
-    input: 'lib/index.js',
+    input: 'lib/index.ts',
     treeshake: false,
     output: [
       {
@@ -46,10 +43,10 @@ export default [
         name: 'EcomClient',
       },
     ],
-    plugins: [...plugins, babel(), uglify()]
+    plugins: [...plugins, uglify()]
   },
   {
-    input: 'lib/index.js',
+    input: 'lib/index.ts',
     treeshake: false,
     output: [
       {
@@ -59,6 +56,6 @@ export default [
         name: 'EcomClient',
       },
     ],
-    plugins: [...plugins, babel()]
+    plugins: [...plugins]
   }
 ];

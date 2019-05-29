@@ -12,7 +12,7 @@ global.fetch = fetch;
 
 const fbConfig = require('../firebase-config.json');
 
-EcomClient = require('../lib/index');
+EcomClient = require('../dist/index.cjs');
 
 const TEST_ENDPOINT = process.env.TEST_ENDPOINT;
 var userCredential;
@@ -60,7 +60,7 @@ describe('Customer', async () => {
 
   it('should create a new customer', async function() {
     let c = await ecom.createCustomer(TEST_EMAIL, TEST_PASSWORD, "Joe", "Bloggs");
-    assert.uuid(c.UUID, 'v4');
+    assert.uuid(c.uuid, 'v4');
     assert.strictEqual(c.firstname, 'Joe');
     assert.strictEqual(c.lastname, 'Bloggs')
     assert.strictEqual(c.email, TEST_EMAIL)
@@ -101,7 +101,7 @@ describe('Customer', async () => {
       'UK'
     );
 
-    assert.uuid(addrA.UUID, 'v4');
+    assert.uuid(addrA.uuid, 'v4');
     assert.strictEqual(addrA.typ, 'billing');
     assert.strictEqual(addrA.contactName, 'Adam Smith');
     assert.strictEqual(addrA.addr1, '123 Timbuck Two Road');
@@ -126,7 +126,7 @@ describe('Customer', async () => {
       'UK'
     );
 
-    assert.uuid(addrB.UUID, 'v4');
+    assert.uuid(addrB.uuid, 'v4');
     assert.strictEqual(addrB.typ, 'shipping');
     assert.strictEqual(addrB.contactName, 'Bob Jones');
     assert.strictEqual(addrB.addr1, '456 Timbuck Two Road');
@@ -151,7 +151,7 @@ describe('Customer', async () => {
       'HK'
     );
 
-    assert.uuid(addrC.UUID, 'v4');
+    assert.uuid(addrC.uuid, 'v4');
     assert.strictEqual(addrC.typ, 'shipping');
     assert.strictEqual(addrC.contactName, 'Jacky Chan');
     assert.strictEqual(addrC.addr1, '678 Sialong');
@@ -165,10 +165,10 @@ describe('Customer', async () => {
   });
 
   it('should get an individual address', async function() {
-    a = await customer.getAddress(addrA.UUID)
+    a = await customer.getAddress(addrA.uuid)
 
-    assert.strictEqual(a.UUID, addrA.UUID);
-    assert.uuid(a.UUID, 'v4');
+    assert.strictEqual(a.uuid, addrA.uuid);
+    assert.uuid(a.uuid, 'v4');
     assert.strictEqual(a.typ, 'billing');
     assert.strictEqual(a.contactName, 'Adam Smith');
     assert.strictEqual(a.addr1, '123 Timbuck Two Road');
@@ -189,7 +189,7 @@ describe('Customer', async () => {
 
     let a0 = list[0];
 
-    assert.uuid(a0.UUID, 'v4');
+    assert.uuid(a0.uuid, 'v4');
     assert.strictEqual(a0.typ, 'shipping');
     assert.strictEqual(a0.contactName, 'Jacky Chan');
     assert.strictEqual(a0.addr1, '678 Sialong');
@@ -202,7 +202,7 @@ describe('Customer', async () => {
     assert.typeOf(a0.modified, 'Date');
 
     let a1 = list[1];
-    assert.uuid(a1.UUID, 'v4');
+    assert.uuid(a1.uuid, 'v4');
     assert.strictEqual(a1.typ, 'shipping');
     assert.strictEqual(a1.contactName, 'Bob Jones');
     assert.strictEqual(a1.addr1, '456 Timbuck Two Road');
@@ -215,8 +215,8 @@ describe('Customer', async () => {
     assert.typeOf(a1.modified, 'Date');
 
     let a2 = list[2];
-    assert.strictEqual(a2.UUID, addrA.UUID);
-    assert.uuid(a2.UUID, 'v4');
+    assert.strictEqual(a2.uuid, addrA.uuid);
+    assert.uuid(a2.uuid, 'v4');
     assert.strictEqual(a2.typ, 'billing');
     assert.strictEqual(a2.contactName, 'Adam Smith');
     assert.strictEqual(a2.addr1, '123 Timbuck Two Road');
