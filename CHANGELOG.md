@@ -1,4 +1,9 @@
 # CHANGELOG
+## 4.1.0 (Wed 29 May 2019)
++ Requires Ecom API version v0.39.0 and above.
++ Adds features to retrieve leaf, non-leaf categories as flat lists.
++ Adds feature to retrieve list of all products as sku, path, name tuples.
+
 ## 4.0.1 (Wed 29 May 2019)
 + Provides sourcemaps for CJS and ESM builds.
 

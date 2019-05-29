@@ -10,7 +10,7 @@ type imageData = {
   size: number,
   created: string | Date,
   modified: string | Date
-}
+};
 
 class Image {
   client: EcomClient;
@@ -36,6 +36,10 @@ class Image {
     this.size = size;
     this.created = created;
     this.modified = modified;
+  }
+
+  getImageURL() : string {
+    return `${this.client.getImageBaseURL()}/${this.path}`;
   }
 }
 
@@ -68,15 +72,23 @@ class Product {
   modified: Date | undefined;
   loaded: boolean;
 
-  constructor(client: EcomClient, sku: string) {
+  constructor(client: EcomClient, sku: string, path: string, name: string) {
     this.client = client;
     this.sku = sku;
+    this.path = path;
+    this.name = name;
     this.images = [];
     this.loaded = false;
   }
 
+  getImages() : Image[] {
+    return this.images;
+  }
+
   async load(forceLoad = false) {
     try {
+      // only load the product data once unless forceLoad is true
+      // in which case force a reload.
       if ((this.loaded) && (!forceLoad)) {
         return;
       }
@@ -87,17 +99,19 @@ class Product {
         let e = Error(data.message)
         throw e;
       }
+
       if (res.status === 200) {
-        let response: productResponseData = await res.json();
-        this.ean = response.ean;
-        this.path = response.path;
-        this.name = response.name;
-        this.data = response.data;
-        this.created = new Date(response.created);
-        this.modified = new Date(response.modified);
+        let data: productResponseData = await res.json();
+        this.ean = data.ean;
+        this.path = data.path;
+        this.name = data.name;
+        this.data = data.data;
+        this.created = new Date(data.created);
+        this.modified = new Date(data.modified);
         this.images = [];
-        for (let i = 0; i < response.images.length; i++) {
-          let d = response.images[i];
+
+        for (let i = 0; i < data.images.length; i++) {
+          let d = data.images[i];
           let img = new Image(this.client, d.uuid, d.sku, d.path, d.gsurl,
             d.width, d.height, d.size, new Date(d.created), new Date(d.modified))
           this.images.push(img);

@@ -5,19 +5,22 @@ import Catalog from './catalog';
 type ecomClientOptions = {
   endpoint: string
   token: string
-  customerUUID: string | undefined
+  customerUUID: string
+  imageBaseURL: string
 };
 
 class EcomClient {
   endpoint: string;
   token: string;
-  customerUUID: string | undefined;
+  customerUUID: string;
+  imageBaseURL: string;
   catalog: Catalog | null;
 
   constructor(opts: ecomClientOptions) {
     this.endpoint = opts.endpoint;
     this.token = opts.token;
-    this.customerUUID = opts.customerUUID || undefined;
+    this.customerUUID = opts.customerUUID || '';
+    this.imageBaseURL = opts.imageBaseURL || '';
     this.catalog = null;
   }
 
@@ -33,7 +36,15 @@ class EcomClient {
     this.customerUUID = uuid;
   }
 
-  getCustomerUUID() : string | undefined {
+  setImageBaseURL(url: string) : void {
+    this.imageBaseURL = url;
+  }
+
+  getImageBaseURL() : string {
+    return this.imageBaseURL;
+  }
+
+  getCustomerUUID() : string {
     return this.customerUUID;
   }
 

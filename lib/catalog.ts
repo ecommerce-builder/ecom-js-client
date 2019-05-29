@@ -1,12 +1,21 @@
 import EcomClient from './index';
 import Product from './product';
 
+
 class Catalog {
   client: EcomClient;
+  leafCategories: Category[] | undefined;
+  nonLeafCategories: Category[] | undefined;
+  allProducts: Product[] | undefined;
+  hasProduct: any;
   root: Category | null;
 
   constructor(client: EcomClient) {
     this.client = client;
+    this.leafCategories = undefined;
+    this.nonLeafCategories = undefined;
+    this.allProducts = undefined;
+    this.hasProduct = {};
     this.root = null;
   }
 
@@ -18,7 +27,7 @@ class Catalog {
     return output;
   }
 
-  rootCategory() : Category | null {
+  getRootCategory() : Category | null {
     return this.root;
   }
 
@@ -48,22 +57,98 @@ class Catalog {
     return context;
   }
 
+  getMidRangeCategories() : object | null {
+    if (!this.nonLeafCategories) {
+      return null;
+    }
+
+    let result = this.nonLeafCategories.filter(c => {
+      if ((c.path.split('/').length-1) > 0) {
+        return true;
+      }
+      return false;
+    });
+
+    return result.map(c => {
+      return { segment: c.segment, path: c.path, name: c.name };
+    });
+  }
+
+  getBottomLevelCategories() : object | null {
+    if (!this.leafCategories) {
+      return null;
+    }
+
+    return this.leafCategories.map(c => {
+      return { segment: c.segment, path: c.path, name: c.name };
+    });
+  }
+
+  getAllProducts() : object | null {
+    if (!this.allProducts) {
+      return null;
+    }
+    return this.allProducts.map(p => {
+      return { sku: p.sku, path: p.path, name: p.name };
+    });
+  }
+
   async load() {
-    function walkTree(client: EcomClient, n: Category, c: Category) {
-      if (n.hasOwnProperty('products') && n.products.constructor === Array) {
+    function walkTree(catalog: Catalog, n: categoryData, c: Category) {
+      if (n.hasOwnProperty('products') && n.products && n.products.constructor === Array) {
         n.products.forEach(function(p) {
-          c.appendProduct(new Product(client, p.sku));
+          c.appendProduct(new Product(catalog.client, p.sku, p.path, p.name));
         });
       }
 
       if (n.hasOwnProperty('categories')) {
         for (let i = 0; i < n.categories.length; i++) {
           let newN = n.categories[i];
-          let newC = new Category(client, newN.segment, c.path + '/' + newN.segment, newN.name);
+          let newC = new Category(catalog.client, newN.segment, c.path + '/' + newN.segment, newN.name);
           c.appendChild(newC);
-          walkTree(client, newN, newC);
+          walkTree(catalog, newN, newC);
         }
       }
+    }
+
+    // Walk the catalog tree and build a list of leaf and non-leaf
+    // categories. These are useful for application level routing.
+    // For example, you might create one application view for
+    // leaf categories that contain products and another for
+    // non-leaf categories that do not.
+    function buildLeafAndNonLeaf(catalog: Catalog, c: Category) {
+      if (c.isLeaf()) {
+        if (!catalog.leafCategories) {
+          catalog.leafCategories = [];
+        }
+        catalog.leafCategories.push(c);
+
+        // Check if this leaf category has products. If
+        // we have seen this product before skip it, otherwise
+        // mark it in a lookup table and add it to the internal
+        // list of products.
+        let products = c.products;
+        for (let i = 0; i < products.length; i++) {
+          let product = products[i];
+          if (!catalog.hasProduct.hasOwnProperty(product.sku)) {
+            catalog.hasProduct[product.sku] = true;
+
+            if (!catalog.allProducts) {
+              catalog.allProducts = [];
+            }
+            catalog.allProducts.push(product);
+          }
+        }
+      } else {
+        if (!catalog.nonLeafCategories) {
+          catalog.nonLeafCategories = [];
+        }
+        catalog.nonLeafCategories.push(c);
+      }
+
+      c.categories.forEach(i => {
+        buildLeafAndNonLeaf(catalog, i);
+      });
     }
 
     try {
@@ -75,9 +160,19 @@ class Catalog {
       }
 
       if (res.status === 200) {
-        let tree = await res.json();
+        let tree: categoryData = await res.json();
+
+        console.log(tree);
+
         this.root = new Category(this.client, tree.segment, tree.segment, tree.name);
-        walkTree(this.client, tree, this.root);
+        walkTree(this, tree, this.root);
+
+        // remove old leaf and non-leaf categories in case this method
+        // has already been called.
+        this.leafCategories = undefined;
+        this.nonLeafCategories = undefined;
+        this.allProducts = undefined;
+        buildLeafAndNonLeaf(this, this.root);
       }
     } catch (err) {
       console.error(err);
@@ -85,6 +180,19 @@ class Catalog {
     }
   }
 }
+
+type categoryProductData = {
+  sku: string,
+  path: string,
+  name: string,
+};
+
+type categoryData = {
+  segment: string,
+  name: string,
+  categories: categoryData[]
+  products?: categoryProductData[]
+};
 
 class Category {
   client: EcomClient;

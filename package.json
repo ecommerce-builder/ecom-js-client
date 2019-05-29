@@ -1,6 +1,6 @@
 {
   "name": "@ecommerce-builder/ecom-js-client",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "Ecom JS Client",
   "main": "dist/index.cjs.js",
   "browser": "dist/index.cjs.js",
