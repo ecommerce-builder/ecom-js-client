@@ -1,6 +1,6 @@
 {
   "name": "@ecommerce-builder/ecom-js-client",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Ecom JS Client",
   "main": "dist/index.cjs.js",
   "browser": "dist/index.cjs.js",
@@ -12,8 +12,9 @@
   },
   "files": [
     "dist/index.cjs.js",
-    "dist/index.cjs.js",
-    "dist/index.esm.js"
+    "dist/index.cjs.js.map",
+    "dist/index.esm.js",
+    "dist/index.esm.js.map"
   ],
   "browserslist": [
     "cover 99.5%"

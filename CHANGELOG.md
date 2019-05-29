@@ -1,4 +1,7 @@
 # CHANGELOG
+## 4.0.1 (Wed 29 May 2019)
++ Provides sourcemaps for CJS and ESM builds.
+
 ## 4.0.0 (Wed 29 May 2019)
 + Complete conversion to Typescript.
 + Fixed unit tests expect lower case uuid for customer addresses.
