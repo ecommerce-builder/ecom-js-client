@@ -141,7 +141,7 @@ class Catalog {
       if ((this.loaded) && (!forceLoad)) {
         return;
       }
-      let res = await this.client.get(`${this.client.endpoint}/catalog`);
+      let res = await this.client.get(`${this.client.endpoint}/categories`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)

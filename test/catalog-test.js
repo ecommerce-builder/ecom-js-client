@@ -73,8 +73,7 @@ describe('Catalog', async () => {
   });
 
   it('should find a category within a category', function() {
-    let root = catalog.rootCategory();
-
+    let root = catalog.getRootCategory();
     b = root.find('b');
 
     // should get back the b category node
@@ -86,7 +85,7 @@ describe('Catalog', async () => {
   });
 
   it('should not find a category within a category', function() {
-    let root = catalog.rootCategory();
+    let root = catalog.getRootCategory();
 
     z = root.find('z');
 

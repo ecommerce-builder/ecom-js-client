@@ -1,4 +1,8 @@
 # CHANGELOG
+## 5.0.0 (Mon 3 Jun 2019)
++ `rootCategory()` deprecated for `getRootCategory()`
++ uses `/categories` for retrieving the catalog. API version v0.41.0
+
 ## 4.2.0 (Wed 29 May 2019)
 + getAllProducts, getMidRangeCategories and getBottomLevelCategories always returns an Array
 + `catalog.loaded` boolean to indicate if catalog has been loaded.
