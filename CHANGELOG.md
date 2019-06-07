@@ -1,4 +1,7 @@
 # CHANGELOG
+## 6.0.0 (Fri 7 Jun 2019)
++ `getAllProducts` returns a `ProductMap` that is `string->Product` object type.
+
 ## 5.0.0 (Mon 3 Jun 2019)
 + `rootCategory()` deprecated for `getRootCategory()`
 + uses `/categories` for retrieving the catalog. API version v0.41.0

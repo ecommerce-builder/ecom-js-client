@@ -64,7 +64,7 @@ class Product {
   client: EcomClient;
   sku: string;
   ean: string | undefined;
-  path: string | undefined;
+  path: string;
   name: string | undefined;
   data: productData | undefined;
   images: Image[];
@@ -126,7 +126,7 @@ class Product {
   unload() {
     this.loaded = false;
     this.ean = undefined;
-    this.path = undefined;
+    this.path = '';
     this.name = undefined;
     this.data = undefined;
     this.images = [];

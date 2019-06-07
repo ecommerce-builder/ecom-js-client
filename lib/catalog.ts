@@ -1,12 +1,13 @@
 import EcomClient from './index';
 import Product from './product';
 
+type ProductMap = {[key: string]: Product}
 
 class Catalog {
   client: EcomClient;
   leafCategories: Category[];
   nonLeafCategories: Category[];
-  allProducts: Product[];
+  allProducts: ProductMap;
   hasProduct: any;
   root: Category | null;
   loaded: boolean;
@@ -15,7 +16,7 @@ class Catalog {
     this.client = client;
     this.leafCategories = [];
     this.nonLeafCategories = [];
-    this.allProducts = [];
+    this.allProducts = {};
     this.hasProduct = {};
     this.root = null;
     this.loaded = false;
@@ -77,13 +78,9 @@ class Catalog {
     });
   }
 
-  getAllProducts() : object[] {
-    if (this.allProducts.length === 0) {
-      return [];
-    }
-    return this.allProducts.map(p => {
-      return { sku: p.sku, path: p.path, name: p.name };
-    });
+
+  getAllProducts() : ProductMap {
+    return this.allProducts;
   }
 
   async load(forceLoad = false) {
@@ -125,7 +122,7 @@ class Catalog {
           let product = products[i];
           if (!catalog.hasProduct.hasOwnProperty(product.sku)) {
             catalog.hasProduct[product.sku] = true;
-            catalog.allProducts.push(product);
+            catalog.allProducts[product.path] = product;
           }
         }
       } else {
@@ -157,7 +154,7 @@ class Catalog {
         // has already been called.
         this.leafCategories = [];
         this.nonLeafCategories = [];
-        this.allProducts = [];
+        this.allProducts = {};
         buildLeafAndNonLeaf(this, this.root);
         this.loaded = true;
       }
@@ -170,7 +167,7 @@ class Catalog {
   unload() {
     this.leafCategories = [];
     this.nonLeafCategories = [];
-    this.allProducts = [];
+    this.allProducts = {};
     this.hasProduct = {};
     this.root = null;
     this.loaded = false;
