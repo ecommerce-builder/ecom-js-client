@@ -1,4 +1,8 @@
 # CHANGELOG
+## 6.1.0 (Mon 10 Jun 2019)
++ `catalog.findProductByPath` method.
++ pricing data added to products on load.
+
 ## 6.0.0 (Fri 7 Jun 2019)
 + `getAllProducts` returns a `ProductMap` that is `string->Product` object type.
 

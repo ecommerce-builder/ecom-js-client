@@ -51,6 +51,13 @@ class Catalog {
     return context;
   }
 
+  findProductByPath(path: string) : Product | null {
+    if (path in this.allProducts) {
+      return this.allProducts[path];
+    }
+    return null;
+  }
+
   getMidRangeCategories() : object[] {
     if (this.nonLeafCategories.length === 0) {
       return [];

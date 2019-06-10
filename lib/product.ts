@@ -1,4 +1,5 @@
 import EcomClient from './index';
+import Price from './price';
 
 type imageData = {
   uuid: string,
@@ -11,6 +12,14 @@ type imageData = {
   created: string | Date,
   modified: string | Date
 };
+
+type priceDataMap = {[key: string]: priceData};
+
+type priceData = {
+  unit_price: number,
+  created: string,
+  modified: string
+}
 
 class Image {
   client: EcomClient;
@@ -43,7 +52,8 @@ class Image {
   }
 }
 
-type productData = {
+
+type productContent = {
   summary: string,
   description: string,
   specification: string
@@ -54,11 +64,14 @@ type productResponseData = {
   ean: string,
   path: string,
   name: string,
-  data: productData,
+  content: productContent,
   images: imageData[],
+  pricing: priceDataMap,
   created: string | Date,
   modified: string | Date
 };
+
+type PricingMap = {[key: string]: Price}
 
 class Product {
   client: EcomClient;
@@ -66,8 +79,9 @@ class Product {
   ean: string | undefined;
   path: string;
   name: string | undefined;
-  data: productData | undefined;
+  content: productContent | undefined;
   images: Image[];
+  pricing: PricingMap;
   created: Date | undefined;
   modified: Date | undefined;
   loaded: boolean;
@@ -77,12 +91,18 @@ class Product {
     this.sku = sku;
     this.path = path;
     this.name = name;
+    this.content = undefined;
     this.images = [];
+    this.pricing = {};
     this.loaded = false;
   }
 
   getImages() : Image[] {
     return this.images;
+  }
+
+  getPricing() : PricingMap {
+    return this.pricing;
   }
 
   async load(forceLoad = false) {
@@ -102,20 +122,31 @@ class Product {
 
       if (res.status === 200) {
         let data: productResponseData = await res.json();
+        console.log(data);
+
         this.ean = data.ean;
         this.path = data.path;
         this.name = data.name;
-        this.data = data.data;
+        this.content = data.content;
         this.created = new Date(data.created);
         this.modified = new Date(data.modified);
-        this.images = [];
 
+        // images
+        this.images = [];
         for (let i = 0; i < data.images.length; i++) {
           let d = data.images[i];
           let img = new Image(this.client, d.uuid, d.sku, d.path, d.gsurl,
             d.width, d.height, d.size, new Date(d.created), new Date(d.modified))
           this.images.push(img);
         }
+
+        // pricing
+        this.pricing = {};
+        Object.keys(data.pricing).forEach((tierRef) => {
+          let p = data.pricing[tierRef];
+          this.pricing[tierRef] = new Price(p.unit_price, new Date(p.created), new Date(p.modified));
+        });
+
         this.loaded = true;
       }
     } catch (err) {
@@ -128,8 +159,10 @@ class Product {
     this.ean = undefined;
     this.path = '';
     this.name = undefined;
-    this.data = undefined;
+    this.content = undefined;
     this.images = [];
+    this.pricing = {};
   }
 }
+
 export default Product;
