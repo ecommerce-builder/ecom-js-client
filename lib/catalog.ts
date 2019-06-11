@@ -11,6 +11,7 @@ class Catalog {
   hasProduct: any;
   root: Category | null;
   loaded: boolean;
+  debug: boolean;
 
   constructor(client: EcomClient) {
     this.client = client;
@@ -20,6 +21,11 @@ class Catalog {
     this.hasProduct = {};
     this.root = null;
     this.loaded = false;
+    this.debug = false;
+  }
+
+  setDebugMode(mode : boolean) {
+    this.debug = mode;
   }
 
   getRootCategory() : Category | null {
@@ -242,9 +248,12 @@ class Category {
     if (!this.isLeaf()) {
       throw Error('cannot load products on non-leaf category');
     }
+
+    let promises : Promise<void>[] = [];
     this.products.forEach(function(product) {
-      product.load(forceLoad);
+      promises.push(product.load(forceLoad));
     });
+    return Promise.all(promises);
   }
 
   unloadProducts() {

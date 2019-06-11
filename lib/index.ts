@@ -15,6 +15,7 @@ class EcomClient {
   customerUUID: string;
   imageBaseURL: string;
   catalog: Catalog | null;
+  debug: boolean;
 
   constructor(opts: ecomClientOptions) {
     this.endpoint = opts.endpoint;
@@ -22,10 +23,15 @@ class EcomClient {
     this.customerUUID = opts.customerUUID || '';
     this.imageBaseURL = opts.imageBaseURL || '';
     this.catalog = null;
+    this.debug = false;
   }
 
   static version() {
       return 'ECOM_VERSION';
+  }
+
+  setDebugMode(mode : boolean) {
+    this.debug = mode;
   }
 
   setJWT(token: string) : void {

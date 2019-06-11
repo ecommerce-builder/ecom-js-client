@@ -122,8 +122,9 @@ class Product {
 
       if (res.status === 200) {
         let data: productResponseData = await res.json();
-        console.log(data);
-
+        if (this.client.debug) {
+          console.log(data);
+        }
         this.ean = data.ean;
         this.path = data.path;
         this.name = data.name;

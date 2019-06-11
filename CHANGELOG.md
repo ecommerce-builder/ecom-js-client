@@ -1,4 +1,9 @@
 # CHANGELOG
+## 6.2.0 (Tue 11 Jun 2019)
++ `catalog.load` uses Promise.all to load products in parallel.
++ `EcomClient.setDebugMode` method added. Console logs extra info if debug mode is enabled.
++ Add missing newlines causing git warnings.
+
 ## 6.1.0 (Mon 10 Jun 2019)
 + `catalog.findProductByPath` method.
 + pricing data added to products on load.
