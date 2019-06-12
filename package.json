@@ -1,6 +1,6 @@
 {
   "name": "@ecommerce-builder/ecom-js-client",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "description": "Ecom JS Client",
   "main": "dist/index.cjs.js",
   "browser": "dist/index.cjs.js",
@@ -46,7 +46,7 @@
     "node-fetch": "^2.6.0",
     "nyc": "^14.1.1",
     "rimraf": "^2.6.3",
-    "rollup": "^1.14.6",
+    "rollup": "^1.15.1",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-typescript": "^1.0.1",
     "rollup-plugin-uglify": "^6.0.2",

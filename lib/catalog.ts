@@ -1,12 +1,15 @@
 import EcomClient from './index';
 import Product from './product';
+import Category from './category';
 
-type ProductMap = {[key: string]: Product}
+type ProductMap = {[key: string]: Product};
+type ProductPathCategoriesMap = {[key: string]: Category[]};
 
 class Catalog {
   client: EcomClient;
   leafCategories: Category[];
   nonLeafCategories: Category[];
+  productPathCategoriesMap: ProductPathCategoriesMap;
   allProducts: ProductMap;
   hasProduct: any;
   root: Category | null;
@@ -17,6 +20,7 @@ class Catalog {
     this.client = client;
     this.leafCategories = [];
     this.nonLeafCategories = [];
+    this.productPathCategoriesMap = {};
     this.allProducts = {};
     this.hasProduct = {};
     this.root = null;
@@ -115,10 +119,13 @@ class Catalog {
     }
 
     // Walk the catalog tree and build a list of leaf and non-leaf
-    // categories. These are useful for application level routing.
+    // categories. These are useful for application routing.
     // For example, you might create one application view for
     // leaf categories that contain products and another for
     // non-leaf categories that do not.
+    // Along the walk, build a map of product path to categories.
+    // This is used to determine what category to use to generate
+    // breadcrumbs whilst viewing an indivual product page.
     function buildLeafAndNonLeaf(catalog: Catalog, c: Category) {
       if (c.isLeaf()) {
         // if (!catalog.leafCategories) {
@@ -133,6 +140,12 @@ class Catalog {
         let products = c.products;
         for (let i = 0; i < products.length; i++) {
           let product = products[i];
+
+          if (!catalog.productPathCategoriesMap.hasOwnProperty(product.path)) {
+            catalog.productPathCategoriesMap[product.path] = [];
+          }
+          catalog.productPathCategoriesMap[product.path].push(c);
+
           if (!catalog.hasProduct.hasOwnProperty(product.sku)) {
             catalog.hasProduct[product.sku] = true;
             catalog.allProducts[product.path] = product;
@@ -207,84 +220,5 @@ type categoryData = {
   categories: categoryData[]
   products?: categoryProductData[]
 };
-
-class Category {
-  client: EcomClient;
-  segment: string;
-  path: string;
-  name: string;
-  parent: Category | null;
-  products: Product[];
-  categories: Category[];
-
-  constructor(client: EcomClient, segment: string, path: string, name: string) {
-    this.client = client;
-    this.segment = segment;
-    this.path = path;
-    this.name = name;
-    this.parent = null;
-    this.products = [];
-    this.categories = [];
-  }
-
-  appendProduct(product: Product) {
-    this.products.push(product);
-  }
-
-  appendChild(category: Category) {
-    category.parent = this;
-    this.categories.push(category);
-  }
-
-  setParent(category: Category) {
-    this.parent = category;
-  }
-
-  hasCategories() : boolean {
-    return this.categories.length > 0;
-  }
-
-  async loadProducts(forceLoad = false) {
-    if (!this.isLeaf()) {
-      throw Error('cannot load products on non-leaf category');
-    }
-
-    let promises : Promise<void>[] = [];
-    this.products.forEach(function(product) {
-      promises.push(product.load(forceLoad));
-    });
-    return Promise.all(promises);
-  }
-
-  unloadProducts() {
-    if (!this.isLeaf()) {
-      throw Error('cannot load products on non-leaf category');
-    }
-    this.products.forEach(function(product) {
-      product.unload();
-    });
-  }
-
-  /**
-   * Looks through the child categories to find
-   * a matching segment. Runs in O(n) time.
-   * @param {string} segment e.g 'shoes', 'widgets' etc
-   */
-  find(segment: string) : Category | null {
-    if (!this.hasCategories()) {
-      return null;
-    }
-    for (let i = 0; i < this.categories.length; i++) {
-      if (this.categories[i].segment === segment) {
-        return this.categories[i];
-      }
-    }
-    return null;
-  }
-
-  isLeaf() : boolean {
-    return this.categories.length === 0;
-  }
-}
 
 export default Catalog;

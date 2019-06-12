@@ -1,4 +1,5 @@
 import EcomClient from './index';
+import Category from './category';
 import Price from './price';
 
 type imageData = {
@@ -153,6 +154,13 @@ class Product {
     } catch (err) {
       throw err;
     }
+  }
+
+  categories() : Category[] {
+    if (this.client.catalog !== null) {
+      return this.client.catalog.productPathCategoriesMap[this.path];
+    }
+    return [];
   }
 
   unload() {

@@ -1,4 +1,12 @@
 # CHANGELOG
+
+## 6.3.0 (Wed 12 Jun 2019)
++ Separate `Category` class into its own file.
++ Moved `Category` class into its own file.
++ Category class has new `categories()` method then returns a list of categories in which this product resides.
++ New property `productPathCategoriesMap` mapping product paths to a list of categories in which they reside.
++ Breadcrumb support methods.
+
 ## 6.2.0 (Tue 11 Jun 2019)
 + `catalog.load` uses Promise.all to load products in parallel.
 + `EcomClient.setDebugMode` method added. Console logs extra info if debug mode is enabled.
