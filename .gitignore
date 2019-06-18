@@ -1,5 +1,6 @@
 .DS_Store
 .nyc_output/
+.rpt2_cache/
 certs/
 coverage/
 dist/

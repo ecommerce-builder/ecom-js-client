@@ -1,9 +1,9 @@
  {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
+    "module": "es6",
     "sourceMap": true,
-    "outDir": "./tsbuild",
+    "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -16,6 +16,13 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationDir": "./dist"
+  },
+  "include": [
+    "lib/**/*"
+  ],
+  "exclude": ["node_modules"]
 }

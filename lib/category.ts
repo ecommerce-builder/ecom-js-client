@@ -70,6 +70,29 @@ class Category {
     return crumbs;
   }
 
+  twoSubCategories(prefix: string = '') : Array<{name: string, path: string, categories: Array<{name: string, path: string}>}> {
+    if (this.categories === null) {
+      return [];
+    }
+
+    let categories : Array<{name: string, path: string, categories: Array<{name: string, path: string}>}> = [];
+    for (let c1 of this.categories) {
+      let level2 : Array<{name: string, path: string }> = [];
+      for (let c2 of c1.categories) {
+        level2.push({
+          name: c2.name,
+          path: `${prefix}${c2.path}`,
+        });
+      }
+      categories.push({
+        name: c1.name,
+        path: `${prefix}${c1.path}`,
+        categories: level2
+      });
+    }
+    return categories;
+  }
+
   unloadProducts() {
     if (!this.isLeaf()) {
       throw Error('cannot load products on non-leaf category');

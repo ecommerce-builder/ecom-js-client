@@ -1,4 +1,10 @@
 # CHANGELOG
+## 7.1.0 (Tue 18 Jun 2019)
++ `twoSubCategories` method added to Category class.
++ Uses `rollup-typescript2` plugin/
++ Produces `.d.ts` files in the build.
++ Puts output in the `dist` directory instead of `tscbuild`.
++ Contains broken tests.
 
 ## 7.0.0 (Tue 18 Jun 2019)
 + Improved cart API.
