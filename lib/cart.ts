@@ -1,9 +1,72 @@
 import EcomClient from './index';
 
+class CartItem {
+  client: EcomClient;
+  sku: string;
+  qty: number;
+  unitPrice: number;
+  created: Date;
+  modified: Date;
+
+  constructor(client: EcomClient, sku: string, qty: number, unitPrice: number, created: Date, modified: Date) {
+    this.client = client;
+    this.sku = sku;
+    this.qty = qty;
+    this.unitPrice = unitPrice;
+    this.created = created;
+    this.modified = modified;
+  }
+
+  async updateQty(qty: number) {
+    try {
+      if (!this.client.cart) {
+        throw Error('No cart object');
+      }
+      let res = await this.client.patch(`${this.client.endpoint}/carts/${this.client.cart.uuid}/items/${this.sku}`, { qty });
+      if (res.status === 200) {
+        let data = await res.json();
+        delete data.uuid;
+        data.created = new Date(data.created);
+        data.modified = new Date(data.modified);
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async delete() {
+    try {
+      if (!this.client.cart) {
+        throw Error('No cart object');
+      }
+      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.client.cart.uuid}/items/${this.sku}`);
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = Error(data.message)
+        throw e;
+      }
+
+      if (res.status === 204) {
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+}
+
 class Cart {
   client: EcomClient;
   uuid: string;
-  items: any[];
+  items: CartItem[]
 
   constructor(client: EcomClient, uuid: string) {
     this.client = client;
@@ -11,11 +74,34 @@ class Cart {
     this.items = [];
   }
 
-  getItems() {
-    return this.items;
+  async getItems() : Promise<CartItem[]> {
+    const res = await this.client.get(`${this.client.endpoint}/carts/${this.uuid}/items`);
+    if (res.status >= 400) {
+      let data = await res.json();
+      let e = Error(data.message)
+      throw e;
+    }
+    let data = await res.json();
+
+    let items: CartItem[] = [];
+    data.forEach((item: {sku: string; qty: number; unit_price: number; created: string, modified: string }) => {
+      let i = new CartItem(this.client, item.sku, item.qty, item.unit_price, new Date(item.created), new Date(item.modified));
+      items.push(i);
+    });
+    this.items = items;
+    return items;
   }
 
-  countItems() {
+  findItem(sku: string) : object | null {
+    for (let item of this.items) {
+      if (item.sku === sku) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  countItems() : number {
     return this.items.length;
   }
 
@@ -26,7 +112,7 @@ class Cart {
    */
   async addItem(sku: string, qty: number) {
     try {
-      let res = await this.client.post(`${this.client.endpoint}/carts/${this.uuid}/items`, {sku, qty});
+      const res = await this.client.post(`${this.client.endpoint}/carts/${this.uuid}/items`, {sku, qty});
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -34,64 +120,9 @@ class Cart {
       }
 
       let data = await res.json();
-
-      // drop the uuid property and convert created and modified to
-      // native JS Date datatypes
-      delete data.uuid;
-      data.created = new Date(data.created);
-      data.modified = new Date(data.modified);
-      this.items.push(data);
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  async removeItem(sku: string) {
-    // TODO: prevent empty value for sku otherwise it'll empty the entire cart items
-    try {
-      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.uuid}/items/${sku}`);
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = Error(data.message)
-        throw e;
-      }
-
-      if (res.status === 204) {
-        // remove this item from the local cart items
-        this.items = this.items.filter(i => {
-          if (i.sku !== sku) return i;
-        });
-        return true;
-      }
-
-      return false;
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  async updateItemQty(sku: string, qty: number) {
-    try {
-      let res = await this.client.patch(`${this.client.endpoint}/carts/${this.uuid}/items/${sku}`, { qty });
-      if (res.status === 200) {
-        let data = await res.json();
-        delete data.uuid;
-        data.created = new Date(data.created);
-        data.modified = new Date(data.modified);
-        this.items = this.items.map(i => {
-          if (i.sku === sku) {
-            return Object.assign({}, i, data);
-          }
-
-          return i;
-        });
-
-        return true;
-      }
-
-      return false;
+      console.dir(data);
+      this.items.push(new CartItem(this.client,
+        data.sku, data.qty, data.unit_price, new Date(data.created), new Date(data.modified)));
     } catch (err) {
       console.error(err);
       throw err;
@@ -108,10 +139,9 @@ class Cart {
       }
 
       if (res.status === 204) {
-        // remove this item from the local cart items
-        this.items = [];
         return true;
       }
+
       return false;
     } catch (err) {
       console.error(err);

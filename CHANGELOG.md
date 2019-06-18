@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 7.0.0 (Tue 18 Jun 2019)
++ Improved cart API.
++ indexedDB used to store sesssion and current cart UUID.
++ Initialization process uses single `.init(opts)` method.
+
 ## 6.3.0 (Wed 12 Jun 2019)
 + Separate `Category` class into its own file.
 + Moved `Category` class into its own file.

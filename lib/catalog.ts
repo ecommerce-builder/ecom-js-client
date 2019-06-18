@@ -14,7 +14,6 @@ class Catalog {
   hasProduct: any;
   root: Category | null;
   loaded: boolean;
-  debug: boolean;
 
   constructor(client: EcomClient) {
     this.client = client;
@@ -25,11 +24,6 @@ class Catalog {
     this.hasProduct = {};
     this.root = null;
     this.loaded = false;
-    this.debug = false;
-  }
-
-  setDebugMode(mode : boolean) {
-    this.debug = mode;
   }
 
   getRootCategory() : Category | null {
@@ -94,7 +88,6 @@ class Catalog {
       return { segment: c.segment, path: c.path, name: c.name };
     });
   }
-
 
   getAllProducts() : ProductMap {
     return this.allProducts;

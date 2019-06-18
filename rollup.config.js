@@ -41,9 +41,13 @@ export default [
         format: 'umd',
         sourcemap: false,
         name: 'EcomClient',
+        globals: {
+          idb: 'idb'
+        }
       },
     ],
-    plugins: [...plugins, uglify()]
+    plugins: [...plugins, uglify()],
+    external,
   },
   {
     input: 'lib/index.ts',
@@ -54,8 +58,12 @@ export default [
         format: 'umd',
         sourcemap: 'inline',
         name: 'EcomClient',
+        globals: {
+          idb: 'idb'
+        }
       },
     ],
-    plugins: [...plugins]
+    plugins: [...plugins],
+    external,
   }
 ];

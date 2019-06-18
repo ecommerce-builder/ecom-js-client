@@ -1,6 +1,7 @@
 import Cart from './cart';
 import Customer from './customer';
 import Catalog from './catalog';
+import { openDB } from 'idb';
 
 type ecomClientOptions = {
   endpoint: string
@@ -15,6 +16,8 @@ class EcomClient {
   customerUUID: string;
   imageBaseURL: string;
   catalog: Catalog | null;
+  cart: Cart | null;
+  dbPromise: any;
   debug: boolean;
 
   constructor(opts: ecomClientOptions) {
@@ -23,11 +26,44 @@ class EcomClient {
     this.customerUUID = opts.customerUUID || '';
     this.imageBaseURL = opts.imageBaseURL || '';
     this.catalog = null;
+    this.cart = null;
+    this.dbPromise = undefined;
     this.debug = false;
   }
 
   static version() {
       return 'ECOM_VERSION';
+  }
+
+  async init(config: { uid: string; } ) {
+    this.dbPromise = await openDB('ecomdb', 1, {
+      upgrade(db : any) {
+        if (!db.objectStoreNames.contains('carts')) {
+          db.createObjectStore('carts', {
+            keyPath: 'uuid',
+            autoIncrement: false
+          });
+        }
+
+        if (!db.objectStoreNames.contains('session')) {
+          db.createObjectStore('session', {
+            keyPath: 'name',
+            autoIncrement: false
+          });
+        }
+      }
+    });
+    await this.dbPromise.put('session', { name: 'currentUser', uid: config.uid });
+
+    // load the catalog
+    const catalog = this.createCatalog();
+    await catalog.load(true);
+
+    // If no cart has been created, then create one.
+    const cart = await this.getCart();
+    if (!cart) {
+      await this.createCart();
+    }
   }
 
   setDebugMode(mode : boolean) {
@@ -119,11 +155,47 @@ class EcomClient {
       }
 
       let data = await res.json();
+      if (this.dbPromise) {
+        console.dir(data);
+        const tx1 = this.dbPromise.transaction('carts', 'readwrite');
+        const cartsDB = tx1.objectStore('carts');
+        await cartsDB.put({ uuid: data.uuid });
+        await tx1.complete;
+
+        const tx2 = this.dbPromise.transaction('session', 'readwrite');
+        const sessionDB = tx2.objectStore('session');
+        await sessionDB.put({ name: 'currentCartUUID', uuid: data.uuid });
+        await tx2.complete;
+      }
+
       return new Cart(this, data.uuid)
     } catch (err) {
       console.error(err);
       throw err;
     }
+  }
+
+  async getCart() : Promise<Cart | null> {
+    if (this.cart) {
+      await this.cart.getItems();
+      return this.cart;
+    }
+
+    try {
+      if (this.dbPromise) {
+        const tx = this.dbPromise.transaction('session', 'readonly');
+        const sessionDB = tx.objectStore('session');
+        const { uuid } = await sessionDB.get('currentCartUUID');
+        if (uuid) {
+          this.cart = new Cart(this, uuid);
+          await this.cart.getItems();
+          return this.cart;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    return null;
   }
 
   /**
