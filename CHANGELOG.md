@@ -1,4 +1,7 @@
 # CHANGELOG
+## 8.0.0 (Wed 19 Jun 2019)
++ Pass `firebase.User` object to `makeCustomer` method.
+
 ## 7.1.1 (Wed 19 Jun 2019)
 + Store the `Customer` onboard the client.
 

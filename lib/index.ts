@@ -246,10 +246,9 @@ class EcomClient {
     }
   }
 
-  async makeCustomer(userCredential: any) : Promise<Customer | null> {
+  async makeCustomer(user: any) : Promise<Customer | null> {
     try {
-      let user = userCredential.user;
-      let idTokenResult = await userCredential.user.getIdTokenResult();
+      let idTokenResult = await user.getIdTokenResult();
       const customer = new Customer(
         this,
         idTokenResult.claims.cuuid,
