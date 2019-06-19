@@ -1,4 +1,7 @@
 # CHANGELOG
+## 9.0.1 (wed 19 Jun 2019)
++ Fix broken `uuid` route param in `getCustomer`.
+
 ## 9.0.0 (Wed 19 Jun 2019)
 + ` getCustomer(user)` method on the ecom client replaces `makeCustomer`.
 

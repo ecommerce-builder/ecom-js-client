@@ -250,7 +250,7 @@ class EcomClient {
     try {
       const idTokenResult = await user.getIdTokenResult();
       const uuid = idTokenResult.claims.cuuid;
-      let res = await this.get(`${this.endpoint}/customers/{$uuid}`);
+      let res = await this.get(`${this.endpoint}/customers/${uuid}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message);
