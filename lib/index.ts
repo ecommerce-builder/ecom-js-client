@@ -16,6 +16,7 @@ class EcomClient {
   customerUUID: string;
   imageBaseURL: string;
   catalog: Catalog | null;
+  customer: Customer | null;
   cart: Cart | null;
   dbPromise: any;
   debug: boolean;
@@ -26,6 +27,7 @@ class EcomClient {
     this.customerUUID = opts.customerUUID || '';
     this.imageBaseURL = opts.imageBaseURL || '';
     this.catalog = null;
+    this.customer = null;
     this.cart = null;
     this.dbPromise = undefined;
     this.debug = false;
@@ -223,7 +225,7 @@ class EcomClient {
 
       if (res.status === 201) {
         let data = await res.json();
-        return new Customer(
+        const customer = new Customer(
           this,
           data.uuid,
           data.uid,
@@ -233,6 +235,8 @@ class EcomClient {
           new Date(data.created),
           new Date(data.modified),
         );
+        this.customer = customer;
+        return customer;
       }
 
       return null;
@@ -242,11 +246,11 @@ class EcomClient {
     }
   }
 
-  async makeCustomer(userCredential: any) {
+  async makeCustomer(userCredential: any) : Promise<Customer | null> {
     try {
       let user = userCredential.user;
       let idTokenResult = await userCredential.user.getIdTokenResult();
-      return new Customer(
+      const customer = new Customer(
         this,
         idTokenResult.claims.cuuid,
         user.uid,
@@ -256,12 +260,13 @@ class EcomClient {
         new Date(Date.now()),
         new Date(Date.now()),
       );
+      this.customer = customer;
+      return customer;
     } catch (err) {
       console.error(err);
       throw err;
     }
   }
 }
-
 
 export default EcomClient;

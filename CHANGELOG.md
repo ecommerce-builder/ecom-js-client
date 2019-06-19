@@ -1,4 +1,7 @@
 # CHANGELOG
+## 7.1.1 (Wed 19 Jun 2019)
++ Store the `Customer` onboard the client.
+
 ## 7.1.0 (Tue 18 Jun 2019)
 + `twoSubCategories` method added to Category class.
 + Uses `rollup-typescript2` plugin/
