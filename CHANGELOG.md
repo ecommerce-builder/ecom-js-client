@@ -1,4 +1,7 @@
 # CHANGELOG
+## 9.0.0 (Wed 19 Jun 2019)
++ ` getCustomer(user)` method on the ecom client replaces `makeCustomer`.
+
 ## 8.0.0 (Wed 19 Jun 2019)
 + Pass `firebase.User` object to `makeCustomer` method.
 

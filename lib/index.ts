@@ -246,21 +246,26 @@ class EcomClient {
     }
   }
 
-  async makeCustomer(user: any) : Promise<Customer | null> {
+  async getCustomer(user: any) : Promise<Customer | null> {
     try {
-      let idTokenResult = await user.getIdTokenResult();
-      const customer = new Customer(
-        this,
-        idTokenResult.claims.cuuid,
-        user.uid,
-        user.email,
-        user.displayName.split(' ').slice(0, -1).join(' '),
-        user.displayName.split(' ').slice(-1).join(' '),
-        new Date(Date.now()),
-        new Date(Date.now()),
-      );
-      this.customer = customer;
-      return customer;
+      const idTokenResult = await user.getIdTokenResult();
+      const uuid = idTokenResult.claims.cuuid;
+      let res = await this.get(`${this.endpoint}/customers/{$uuid}`);
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = Error(data.message);
+        throw e;
+      }
+
+      if (res.status === 200) {
+        let data = await res.json();
+        const customer = new Customer(this, uuid, data.uid, data.email, data.firstname, data.lastname,
+          new Date(data.created), new Date(data.modified));
+        this.customer = customer;
+        return customer;
+      }
+
+      return null;
     } catch (err) {
       console.error(err);
       throw err;
