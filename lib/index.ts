@@ -6,14 +6,14 @@ import { openDB } from 'idb';
 type ecomClientOptions = {
   endpoint: string
   token: string
-  customerUUID: string
+  customerId: string
   imageBaseURL: string
 };
 
 class EcomClient {
   endpoint: string;
   token: string;
-  customerUUID: string;
+  customerId: string;
   imageBaseURL: string;
   catalog: Catalog | null;
   customer: Customer | null;
@@ -24,7 +24,7 @@ class EcomClient {
   constructor(opts: ecomClientOptions) {
     this.endpoint = opts.endpoint;
     this.token = opts.token;
-    this.customerUUID = opts.customerUUID || '';
+    this.customerId = opts.customerId || '';
     this.imageBaseURL = opts.imageBaseURL || '';
     this.catalog = null;
     this.customer = null;
@@ -42,7 +42,7 @@ class EcomClient {
       upgrade(db : any) {
         if (!db.objectStoreNames.contains('carts')) {
           db.createObjectStore('carts', {
-            keyPath: 'uuid',
+            keyPath: 'id',
             autoIncrement: false
           });
         }
@@ -76,8 +76,8 @@ class EcomClient {
     this.token = token;
   }
 
-  setCustomerUUID(uuid: string) : void {
-    this.customerUUID = uuid;
+  setCustomerId(id: string) : void {
+    this.customerId = id;
   }
 
   setImageBaseURL(url: string) : void {
@@ -88,8 +88,8 @@ class EcomClient {
     return this.imageBaseURL;
   }
 
-  getCustomerUUID() : string {
-    return this.customerUUID;
+  getCustomerId() : string {
+    return this.customerId;
   }
 
   async get(url: string) {
@@ -157,20 +157,22 @@ class EcomClient {
       }
 
       let data = await res.json();
+
       if (this.dbPromise) {
-        console.dir(data);
         const tx1 = this.dbPromise.transaction('carts', 'readwrite');
         const cartsDB = tx1.objectStore('carts');
-        await cartsDB.put({ uuid: data.uuid });
+        await cartsDB.put({ id: data.id });
         await tx1.complete;
 
         const tx2 = this.dbPromise.transaction('session', 'readwrite');
         const sessionDB = tx2.objectStore('session');
-        await sessionDB.put({ name: 'currentCartUUID', uuid: data.uuid });
+        await sessionDB.put({ name: 'currentCartId', id: data.id });
         await tx2.complete;
       }
 
-      return new Cart(this, data.uuid)
+      const cart = new Cart(this, data.id);
+      this.cart = cart;
+      return cart;
     } catch (err) {
       console.error(err);
       throw err;
@@ -187,9 +189,9 @@ class EcomClient {
       if (this.dbPromise) {
         const tx = this.dbPromise.transaction('session', 'readonly');
         const sessionDB = tx.objectStore('session');
-        const { uuid } = await sessionDB.get('currentCartUUID');
-        if (uuid) {
-          this.cart = new Cart(this, uuid);
+        const { id } = await sessionDB.get('currentCartId');
+        if (id) {
+          this.cart = new Cart(this, id);
           await this.cart.getItems();
           return this.cart;
         }
@@ -227,7 +229,7 @@ class EcomClient {
         let data = await res.json();
         const customer = new Customer(
           this,
-          data.uuid,
+          data.id,
           data.uid,
           data.email,
           data.firstname,
@@ -249,8 +251,8 @@ class EcomClient {
   async getCustomer(user: any) : Promise<Customer | null> {
     try {
       const idTokenResult = await user.getIdTokenResult();
-      const uuid = idTokenResult.claims.cuuid;
-      let res = await this.get(`${this.endpoint}/customers/${uuid}`);
+      const id = idTokenResult.claims.cid;
+      let res = await this.get(`${this.endpoint}/customers/${id}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message);
@@ -259,7 +261,7 @@ class EcomClient {
 
       if (res.status === 200) {
         let data = await res.json();
-        const customer = new Customer(this, uuid, data.uid, data.email, data.firstname, data.lastname,
+        const customer = new Customer(this, id, data.uid, data.email, data.firstname, data.lastname,
           new Date(data.created), new Date(data.modified));
         this.customer = customer;
         return customer;

@@ -1,4 +1,11 @@
 # CHANGELOG
+## 10.0.0 (Mon 1 Jul 2019)
++ Uses `id` in place of `uuid` for all lib calls.
++ Fix bug causing No cart error.
++ Unit testing to use integer for pricing not float point representation.
++ Customer ID is held in `claims.cid` not `claims.uuid` now.
++ Update npm deps.
+
 ## 9.0.1 (wed 19 Jun 2019)
 + Fix broken `uuid` route param in `getCustomer`.
 

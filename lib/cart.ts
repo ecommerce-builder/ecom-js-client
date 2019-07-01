@@ -22,10 +22,10 @@ class CartItem {
       if (!this.client.cart) {
         throw Error('No cart object');
       }
-      let res = await this.client.patch(`${this.client.endpoint}/carts/${this.client.cart.uuid}/items/${this.sku}`, { qty });
+      let res = await this.client.patch(`${this.client.endpoint}/carts/${this.client.cart.id}/items/${this.sku}`, { qty });
       if (res.status === 200) {
         let data = await res.json();
-        delete data.uuid;
+        delete data.id;
         data.created = new Date(data.created);
         data.modified = new Date(data.modified);
         return true;
@@ -43,7 +43,7 @@ class CartItem {
       if (!this.client.cart) {
         throw Error('No cart object');
       }
-      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.client.cart.uuid}/items/${this.sku}`);
+      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.client.cart.id}/items/${this.sku}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -65,17 +65,17 @@ class CartItem {
 
 class Cart {
   client: EcomClient;
-  uuid: string;
+  id: string;
   items: CartItem[]
 
-  constructor(client: EcomClient, uuid: string) {
+  constructor(client: EcomClient, id: string) {
     this.client = client;
-    this.uuid = uuid;
+    this.id = id;
     this.items = [];
   }
 
   async getItems() : Promise<CartItem[]> {
-    const res = await this.client.get(`${this.client.endpoint}/carts/${this.uuid}/items`);
+    const res = await this.client.get(`${this.client.endpoint}/carts/${this.id}/items`);
     if (res.status >= 400) {
       let data = await res.json();
       let e = Error(data.message)
@@ -84,7 +84,7 @@ class Cart {
     let data = await res.json();
 
     let items: CartItem[] = [];
-    data.forEach((item: {sku: string; qty: number; unit_price: number; created: string, modified: string }) => {
+    data.items.forEach((item: {sku: string; qty: number; unit_price: number; created: string, modified: string }) => {
       let i = new CartItem(this.client, item.sku, item.qty, item.unit_price, new Date(item.created), new Date(item.modified));
       items.push(i);
     });
@@ -112,7 +112,7 @@ class Cart {
    */
   async addItem(sku: string, qty: number) {
     try {
-      const res = await this.client.post(`${this.client.endpoint}/carts/${this.uuid}/items`, {sku, qty});
+      const res = await this.client.post(`${this.client.endpoint}/carts/${this.id}/items`, {sku, qty});
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -120,7 +120,6 @@ class Cart {
       }
 
       let data = await res.json();
-      console.dir(data);
       this.items.push(new CartItem(this.client,
         data.sku, data.qty, data.unit_price, new Date(data.created), new Date(data.modified)));
     } catch (err) {
@@ -131,7 +130,7 @@ class Cart {
 
   async emptyAllItems() {
     try {
-      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.uuid}/items`);
+      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.id}/items`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)

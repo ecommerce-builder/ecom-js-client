@@ -3,7 +3,7 @@ import Address from './address';
 
 class Customer {
   client: EcomClient;
-  uuid: string;
+  id: string;
   uid: string;
   email: string;
   firstname: string;
@@ -11,9 +11,9 @@ class Customer {
   created: Date;
   modified: Date;
 
-  constructor(client: EcomClient, uuid: string, uid: string, email: string, firstname: string, lastname: string, created: Date, modified: Date) {
+  constructor(client: EcomClient, id: string, uid: string, email: string, firstname: string, lastname: string, created: Date, modified: Date) {
     this.client = client;
-    this.uuid = uuid;
+    this.id = id;
     this.uid = uid;
     this.email = email;
     this.firstname = firstname;
@@ -36,7 +36,7 @@ class Customer {
    */
   async createAddress(typ: string, contactName: string, addr1: string, addr2: string, city: string, county: string, postcode: string, country: string) {
     try {
-      let res = await this.client.post(`${this.client.endpoint}/customers/${this.uuid}/addresses`, {
+      let res = await this.client.post(`${this.client.endpoint}/customers/${this.id}/addresses`, {
         typ,
         contact_name: contactName,
         addr1,
@@ -56,7 +56,7 @@ class Customer {
         let data = await res.json();
         return new Address(
           this.client,
-          data.uuid,
+          data.id,
           data.typ,
           data.contact_name,
           data.addr1,
@@ -77,13 +77,13 @@ class Customer {
   }
 
   /**
-   * Get address by UUID
-   * @param {string}   uuid address UUID
+   * Get address by ID
+   * @param {string}    id address ID
    * @return {Address}
    */
-  async getAddress(uuid: string) : Promise<Address | null> {
+  async getAddress(id: string) : Promise<Address | null> {
     try {
-      let res = await this.client.get(`${this.client.endpoint}/addresses/${uuid}`);
+      let res = await this.client.get(`${this.client.endpoint}/addresses/${id}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -94,7 +94,7 @@ class Customer {
         let data = await res.json();
         return new Address(
           this.client,
-          data.uuid,
+          data.id,
           data.typ,
           data.contact_name,
           data.addr1,
@@ -116,7 +116,7 @@ class Customer {
 
   async getAddresses() {
     try {
-      let res = await this.client.get(`${this.client.endpoint}/customers/${this.uuid}/addresses`);
+      let res = await this.client.get(`${this.client.endpoint}/customers/${this.id}/addresses`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -129,7 +129,7 @@ class Customer {
         return data.map((i: any) => {
           return new Address(
             this.client,
-            i.uuid,
+            i.id,
             i.typ,
             i.contact_name,
             i.addr1,

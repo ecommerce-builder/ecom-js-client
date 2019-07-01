@@ -50,8 +50,7 @@ describe('Cart', async () => {
 
       // save the JWT in the JS Client
       ecom.setJWT(idTokenResult.token);
-      console.log(idTokenResult.token);
-      //ecom.setCustomerUUID(idTokenResult.claims.cuuid);
+      //ecom.setCustomerId(idTokenResult.claims.cid);
     } catch (err) {
       throw err;
     }
@@ -77,7 +76,7 @@ describe('Cart', async () => {
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 254.82);
+    assert.strictEqual(items[0].unitPrice, 25482);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
   });
@@ -92,13 +91,13 @@ describe('Cart', async () => {
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 254.82);
+    assert.strictEqual(items[0].unitPrice, 25482);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
 
     assert.strictEqual(items[1].sku, 'TV-SKU');
     assert.strictEqual(items[1].qty, 5);
-    assert.strictEqual(items[1].unitPrice, 144.57);
+    assert.strictEqual(items[1].unitPrice, 14457);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
   });
@@ -113,19 +112,19 @@ describe('Cart', async () => {
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 254.82);
+    assert.strictEqual(items[0].unitPrice, 25482);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
 
     assert.strictEqual(items[1].sku, 'TV-SKU');
     assert.strictEqual(items[1].qty, 5);
-    assert.strictEqual(items[1].unitPrice, 144.57);
+    assert.strictEqual(items[1].unitPrice, 14457);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
 
     assert.strictEqual(items[2].sku, 'WATER-SKU');
     assert.strictEqual(items[2].qty, 1);
-    assert.strictEqual(items[2].unitPrice, 2.45);
+    assert.strictEqual(items[2].unitPrice, 245);
     assert.typeOf(items[2].created, 'Date');
     assert.typeOf(items[2].modified, 'Date');
     water = items[2];
@@ -140,27 +139,27 @@ describe('Cart', async () => {
     assert.strictEqual(count, 3);
 
     for (let i = 0; i < items.length; i++) {
-      assert.hasAllKeys(items[i], [
+      assert.hasAnyKeys(items[i], [
         'sku', 'qty', 'unitPrice', 'created', 'modified'
       ]);
     }
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 254.82);
+    assert.strictEqual(items[0].unitPrice, 25482);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
     desk = items[0];
 
     assert.strictEqual(items[1].sku, 'TV-SKU');
     assert.strictEqual(items[1].qty, 5);
-    assert.strictEqual(items[1].unitPrice, 144.57);
+    assert.strictEqual(items[1].unitPrice, 14457);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
 
     assert.strictEqual(items[2].sku, 'WATER-SKU');
     assert.strictEqual(items[2].qty, 2);
-    assert.strictEqual(items[2].unitPrice, 2.45);
+    assert.strictEqual(items[2].unitPrice, 245);
     assert.typeOf(items[2].created, 'Date');
     assert.typeOf(items[2].modified, 'Date');
   });
@@ -176,13 +175,13 @@ describe('Cart', async () => {
 
     assert.strictEqual(items[0].sku, 'TV-SKU');
     assert.strictEqual(items[0].qty, 5);
-    assert.strictEqual(items[0].unitPrice, 144.57);
+    assert.strictEqual(items[0].unitPrice, 14457);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
 
     assert.strictEqual(items[1].sku, 'WATER-SKU');
     assert.strictEqual(items[1].qty, 2);
-    assert.strictEqual(items[1].unitPrice, 2.45);
+    assert.strictEqual(items[1].unitPrice, 245);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
   });

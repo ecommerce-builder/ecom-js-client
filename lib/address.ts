@@ -2,7 +2,7 @@ import EcomClient from './index';
 
 class Address {
   client: EcomClient;
-  uuid: string;
+  id: string;
   typ: string;
   contactName: string;
   addr1: string;
@@ -17,7 +17,7 @@ class Address {
   /**
    * @param {string} client reference to the EcomClient instance
    * @param {string} typ          'billing' or 'shipping'
-   * @param {string} uuid         address UUID
+   * @param {string} id            address ID
    * @param {string} contactName
    * @param {string} addr1
    * @param {string} addr2
@@ -28,9 +28,9 @@ class Address {
    * @param {Date}   created
    * @param {Date}   modified
    */
-  constructor(client: EcomClient, uuid: string, typ: string, contactName: string, addr1: string, addr2: string, city: string, county: string, postcode: string, country: string, created: Date, modified: Date) {
+  constructor(client: EcomClient, id: string, typ: string, contactName: string, addr1: string, addr2: string, city: string, county: string, postcode: string, country: string, created: Date, modified: Date) {
     this.client = client;
-    this.uuid = uuid;
+    this.id = id;
     this.typ = typ;
     this.contactName = contactName;
     this.addr1 = addr1;
@@ -45,7 +45,7 @@ class Address {
 
   async delete() {
     try {
-      let res = await this.client.delete(`${this.client.endpoint}/addresses/${this.uuid}`);
+      let res = await this.client.delete(`${this.client.endpoint}/addresses/${this.id}`);
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)

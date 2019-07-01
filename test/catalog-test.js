@@ -40,7 +40,6 @@ describe('Catalog', async () => {
 
       // save the JWT in the JS Client
       ecom.setJWT(idTokenResult.token);
-      console.log(idTokenResult.token);
     } catch (err) {
         throw err;
     }

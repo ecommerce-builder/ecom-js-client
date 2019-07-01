@@ -3,7 +3,7 @@ import Category from './category';
 import Price from './price';
 
 type imageData = {
-  uuid: string,
+  id: string,
   sku: string,
   path: string,
   gsurl: string,
@@ -24,7 +24,7 @@ type priceData = {
 
 class Image {
   client: EcomClient;
-  uuid: string;
+  id: string;
   sku: string;
   path: string;
   gsurl: string;
@@ -34,10 +34,10 @@ class Image {
   created: Date;
   modified: Date;
 
-  constructor(client: EcomClient, uuid: string, sku: string,
+  constructor(client: EcomClient, id: string, sku: string,
     path: string, gsurl: string, width: number, height: number, size: number, created: Date, modified: Date) {
     this.client = client;
-    this.uuid = uuid;
+    this.id = id;
     this.sku = sku;
     this.path = path;
     this.gsurl = gsurl;
@@ -137,7 +137,7 @@ class Product {
         this.images = [];
         for (let i = 0; i < data.images.length; i++) {
           let d = data.images[i];
-          let img = new Image(this.client, d.uuid, d.sku, d.path, d.gsurl,
+          let img = new Image(this.client, d.id, d.sku, d.path, d.gsurl,
             d.width, d.height, d.size, new Date(d.created), new Date(d.modified))
           this.images.push(img);
         }
