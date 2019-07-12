@@ -1,4 +1,7 @@
 # CHANGELOG
+## 10.0.4 (Fri 12 Jul 2019)
++ Fix `item.updateQty` method to update the qty property.
+
 ## 10.0.3 (Fri 12 Jul 2019)
 + Fix `cart.countItems()` method to give sum of qtys.
 + Update npm deps.

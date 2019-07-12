@@ -28,6 +28,8 @@ class CartItem {
         delete data.id;
         data.created = new Date(data.created);
         data.modified = new Date(data.modified);
+
+        this.qty = qty;
         return true;
       }
 
