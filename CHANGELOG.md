@@ -1,5 +1,5 @@
 # CHANGELOG
-## 10.0.2 (Fri 12 Jul 2019)
+## 10.0.3 (Fri 12 Jul 2019)
 + Fix `cart.countItems()` method to give sum of qtys.
 + Update npm deps.
 
