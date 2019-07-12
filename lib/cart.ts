@@ -102,7 +102,11 @@ class Cart {
   }
 
   countItems() : number {
-    return this.items.length;
+    let count = 0;
+    this.items.forEach((i) => {
+      count += i.qty;
+    });
+    return count;
   }
 
   /**

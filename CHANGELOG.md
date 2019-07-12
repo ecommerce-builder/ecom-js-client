@@ -1,4 +1,8 @@
 # CHANGELOG
+## 10.0.2 (Fri 12 Jul 2019)
++ Fix `cart.countItems()` method to give sum of qtys.
++ Update npm deps.
+
 ## 10.0.0 (Mon 1 Jul 2019)
 + Uses `id` in place of `uuid` for all lib calls.
 + Fix bug causing No cart error.
