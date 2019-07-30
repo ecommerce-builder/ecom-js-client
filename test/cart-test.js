@@ -72,11 +72,12 @@ describe('Cart', async () => {
     let items = await cart.getItems();
     let count = cart.countItems();
 
-    assert.strictEqual(count, 1);
+    assert.strictEqual(count, 2);
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
+    assert.strictEqual(items[0].name, 'Oak Desk');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 25482);
+    assert.strictEqual(items[0].unitPrice, 2987083);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
   });
@@ -87,17 +88,19 @@ describe('Cart', async () => {
     let items = await cart.getItems();
     let count = cart.countItems();
 
-    assert.strictEqual(count, 2);
+    assert.strictEqual(count, 7);
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
+    assert.strictEqual(items[0].name, 'Oak Desk');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 25482);
+    assert.strictEqual(items[0].unitPrice, 2987083);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
 
     assert.strictEqual(items[1].sku, 'TV-SKU');
+    assert.strictEqual(items[1].name, 'LCD TV System');
     assert.strictEqual(items[1].qty, 5);
-    assert.strictEqual(items[1].unitPrice, 14457);
+    assert.strictEqual(items[1].unitPrice, 2066250);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
   });
@@ -108,23 +111,26 @@ describe('Cart', async () => {
     let items = await cart.getItems();
     let count = cart.countItems();
 
-    assert.strictEqual(count, 3);
+    assert.strictEqual(count, 8);
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
+    assert.strictEqual(items[0].name, 'Oak Desk');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 25482);
+    assert.strictEqual(items[0].unitPrice, 2987083);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
 
     assert.strictEqual(items[1].sku, 'TV-SKU');
+    assert.strictEqual(items[1].name, 'LCD TV System');
     assert.strictEqual(items[1].qty, 5);
-    assert.strictEqual(items[1].unitPrice, 14457);
+    assert.strictEqual(items[1].unitPrice, 2066250);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
 
     assert.strictEqual(items[2].sku, 'WATER-SKU');
+    assert.strictEqual(items[2].name, 'Water Bottle');
     assert.strictEqual(items[2].qty, 1);
-    assert.strictEqual(items[2].unitPrice, 245);
+    assert.strictEqual(items[2].unitPrice, 20417);
     assert.typeOf(items[2].created, 'Date');
     assert.typeOf(items[2].modified, 'Date');
     water = items[2];
@@ -136,30 +142,33 @@ describe('Cart', async () => {
     let items = await cart.getItems();
     let count = cart.countItems();
 
-    assert.strictEqual(count, 3);
+    assert.strictEqual(count, 9);
 
     for (let i = 0; i < items.length; i++) {
       assert.hasAnyKeys(items[i], [
-        'sku', 'qty', 'unitPrice', 'created', 'modified'
+        'sku', 'name', 'qty', 'unitPrice', 'created', 'modified'
       ]);
     }
 
     assert.strictEqual(items[0].sku, 'DESK-SKU');
+    assert.strictEqual(items[0].name, 'Oak Desk');
     assert.strictEqual(items[0].qty, 2);
-    assert.strictEqual(items[0].unitPrice, 25482);
+    assert.strictEqual(items[0].unitPrice, 2987083);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
     desk = items[0];
 
     assert.strictEqual(items[1].sku, 'TV-SKU');
+    assert.strictEqual(items[1].name, 'LCD TV System');
     assert.strictEqual(items[1].qty, 5);
-    assert.strictEqual(items[1].unitPrice, 14457);
+    assert.strictEqual(items[1].unitPrice, 2066250);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
 
     assert.strictEqual(items[2].sku, 'WATER-SKU');
+    assert.strictEqual(items[2].name, 'Water Bottle');
     assert.strictEqual(items[2].qty, 2);
-    assert.strictEqual(items[2].unitPrice, 245);
+    assert.strictEqual(items[2].unitPrice, 20417);
     assert.typeOf(items[2].created, 'Date');
     assert.typeOf(items[2].modified, 'Date');
   });
@@ -171,17 +180,18 @@ describe('Cart', async () => {
     let items = await cart.getItems();
     let count = cart.countItems();
 
-    assert.strictEqual(count, 2);
+    assert.strictEqual(count, 7);
 
     assert.strictEqual(items[0].sku, 'TV-SKU');
+    assert.strictEqual(items[0].name, 'LCD TV System');
     assert.strictEqual(items[0].qty, 5);
-    assert.strictEqual(items[0].unitPrice, 14457);
+    assert.strictEqual(items[0].unitPrice, 2066250);
     assert.typeOf(items[0].created, 'Date');
     assert.typeOf(items[0].modified, 'Date');
 
     assert.strictEqual(items[1].sku, 'WATER-SKU');
     assert.strictEqual(items[1].qty, 2);
-    assert.strictEqual(items[1].unitPrice, 245);
+    assert.strictEqual(items[1].unitPrice, 20417);
     assert.typeOf(items[1].created, 'Date');
     assert.typeOf(items[1].modified, 'Date');
   });

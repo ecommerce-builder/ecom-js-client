@@ -1,4 +1,11 @@
 # CHANGELOG
+## 11.0.0 (Tue 29 Jul 2019)
++ Requires API `v0.56.0`.
++ Split cart and cart item to two files.
++ Cart items now contain the name property alongside the sku and qty.
++ Update test suite as unit prices are now 4 decimial places (integer) and cart count is absolute, not per type.
++ Update npm deps.
+
 ## 10.0.4 (Fri 12 Jul 2019)
 + Fix `item.updateQty` method to update the qty property.
 
