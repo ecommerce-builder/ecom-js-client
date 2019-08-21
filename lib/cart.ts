@@ -30,6 +30,10 @@ class Cart {
     return items;
   }
 
+  getCartId() : string{
+    return this.id;
+  }
+
   findItem(sku: string) : object | null {
     for (let item of this.items) {
       if (item.sku === sku) {
@@ -49,12 +53,16 @@ class Cart {
 
   /**
    * Adds an item to the shopping cart
-   * @param {string} sku
+   * @param {string} productId
    * @param {number} qty
    */
-  async addItem(sku: string, qty: number) {
+  async addItem(productId: string, qty: number) {
     try {
-      const res = await this.client.post(`${this.client.endpoint}/carts/${this.id}/items`, {sku, qty});
+      const res = await this.client.post(`${this.client.endpoint}/carts/${this.id}/items`, {
+        product_id: productId,
+        qty: qty
+      });
+
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -62,8 +70,9 @@ class Cart {
       }
 
       let data = await res.json();
-      this.items.push(new CartItem(this.client,
-        data.sku, data.name, data.qty, data.unit_price, new Date(data.created), new Date(data.modified)));
+      const cartItem = new CartItem(this.client, data.sku, data.name, data.qty, data.unit_price, new Date(data.created), new Date(data.modified));
+
+      this.items.push(cartItem);
     } catch (err) {
       console.error(err);
       throw err;

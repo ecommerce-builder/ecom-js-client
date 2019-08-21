@@ -23,7 +23,7 @@ var addrB;
 var addrC;
 
 const TEST_EMAIL = process.env.TEST_EMAIL;
-const TEST_PASSWORD = 'secretsauce';
+const TEST_PASSWORD = process.env.TEST_PASSWORD;
 
 var userCredential;
 var idTokenResult;

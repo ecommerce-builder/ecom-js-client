@@ -1,6 +1,6 @@
 {
   "name": "@ecommerce-builder/ecom-js-client",
-  "version": "11.0.0",
+  "version": "12.1.0",
   "description": "Ecom JS Client",
   "main": "dist/index.cjs.js",
   "browser": "dist/index.cjs.js",
@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "rimraf dist && rollup -c",
-    "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=http://localhost:8080 TEST_EMAIL=andy+1555@andyfusniak.com TEST_PASSWORD=testtest nyc --all --clean --reporter=text --reporter=html mocha --timeout 15000 --slow 3000 test"
+    "test": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 TEST_ENDPOINT=http://localhost:8080 TEST_EMAIL=andy+1901@andyfusniak.com TEST_PASSWORD=testtest nyc --all --clean --reporter=text --reporter=html mocha --timeout 15000 --slow 3000 test"
   },
   "files": [
     "dist",
@@ -36,8 +36,8 @@
   "author": "Andy Fusniak",
   "license": "MIT",
   "devDependencies": {
-    "@firebase/app": "^0.4.12",
-    "@firebase/auth": "^0.11.6",
+    "@firebase/app": "^0.4.14",
+    "@firebase/auth": "^0.11.8",
     "chai": "^4.2.0",
     "chai-uuid": "^1.0.6",
     "cross-env": "^5.2.0",
@@ -45,8 +45,8 @@
     "mocha": "^6.2.0",
     "node-fetch": "^2.6.0",
     "nyc": "^14.1.1",
-    "rimraf": "^2.6.3",
-    "rollup": "^1.17.0",
+    "rimraf": "^3.0.0",
+    "rollup": "^1.20.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-typescript2": "^0.22.1",
     "rollup-plugin-uglify": "^6.0.2",

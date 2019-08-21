@@ -58,6 +58,21 @@ class Address {
       throw err;
     }
   }
+
+  /**
+   * Creates and returns an object map suitable for placing an order.
+   */
+  toOrderObject() : Object {
+    return {
+      contact_name: this.contactName,
+      addr1: this.addr1,
+      addr2: this.addr2,
+      city: this.city,
+      county: this.county,
+      postcode: this.postcode,
+      country: this.country
+    };
+  }
 }
 
 export default Address;
