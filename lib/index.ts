@@ -3,6 +3,8 @@ import Customer from './customer';
 import Catalog from './catalog';
 import Address from './address';
 import Order from './order';
+import PriceList from './price-list';
+import EcomError from './error';
 
 import { openDB } from 'idb';
 
@@ -191,7 +193,7 @@ class EcomClient {
       mode: 'cors',
     };
 
-    if ((method == 'POST') && (!body)) {
+    if ((method === 'POST') && (!body)) {
       opts.headers['Content-Length'] = '0';
     }
 
@@ -316,6 +318,109 @@ class EcomClient {
       throw err;
     }
   }
+
+  async createPriceList(priceListCode: string, currencyCode: string, strategy: string, incTax: boolean, name: string, description: string) : Promise<PriceList | undefined> {
+    try {
+      type createPriceListRequestBody = {
+        price_list_code: string
+        currency_code: string
+        readonly strategy: string
+        inc_tax: boolean
+        name: string
+        description: string
+      }
+
+      const requestBody : createPriceListRequestBody = {
+        price_list_code: priceListCode,
+        currency_code: currencyCode,
+        strategy: strategy,
+        inc_tax: incTax,
+        name: name,
+        description: description
+      };
+      let res = await this.post(`${this.endpoint}/price-lists`, requestBody);
+
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = new EcomError(data.status, data.code, data.message);
+        throw e;
+      }
+
+      if (res.status === 201) {
+        let data  = await res.json();
+
+        const priceList = new PriceList(this, data.id, data.price_list_code, data.currency_code,
+          data.strategy, data.inc_tax, data.name, data.description, new Date(data.created), new Date(data.modified));
+        return priceList;
+      }
+
+      return undefined;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getPriceList(priceListId: string) : Promise<PriceList|undefined> {
+    try {
+      let res = await this.get(`${this.endpoint}/price-lists/${priceListId}`);
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = new EcomError(data.status, data.code, data.message);
+        throw e;
+      }
+
+      if (res.status === 200) {
+        let data  = await res.json();
+
+        const priceList = new PriceList(this, data.id, data.price_list_code, data.currency_code,
+          data.strategy, data.inc_tax, data.name, data.description, new Date(data.created), new Date(data.modified));
+        return priceList;
+      }
+      return undefined;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getPriceLists() : Promise<Array<PriceList> | undefined> {
+    try {
+      let res = await this.get(`${this.endpoint}/price-lists`);
+
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = new EcomError(data.status, data.code, data.message);
+        throw e;
+      }
+
+      if (res.status === 200) {
+        type response = {
+          id: string
+          price_list_code: string
+          currency_code: string
+          strategy: string
+          inc_tax: boolean
+          name: string
+          description: string
+          created: string
+          modified: string
+        }
+
+        let data : { object: string, data: Array<response> } = await res.json();
+        if (data.object === 'list') {
+          let priceLists : Array<PriceList> = [];
+          for (const p of data.data) {
+            const pl = new PriceList(this, p.id, p.price_list_code, p.currency_code, p.strategy, p.inc_tax, p.name, p.description, new Date(p.created), new Date(p.modified));
+            priceLists.push(pl);
+          }
+          return priceLists;
+        }
+      }
+      return undefined;
+    } catch (err) {
+      throw err;
+    }
+  }
+
 
   async getCustomer(user: any) : Promise<Customer | null> {
     try {
