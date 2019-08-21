@@ -1,4 +1,7 @@
 # CHANGELOG
+## 12.2.0 (Wed 21 Aug 2019)
++ Price list create, read, updated, delete and list methods.
+
 ## 11.0.0 (Tue 29 Jul 2019)
 + Requires API `v0.56.0`.
 + Split cart and cart item to two files.
