@@ -115,6 +115,7 @@ export class Auth {
               isAnonymous: user.isAnonymous,
               uid: user.uid,
             };
+            this._authUser = authUser;
             return authUser;
           }
         }
