@@ -14,18 +14,20 @@ export interface AuthUser {
 
 export class Auth {
   readonly _client: EcomClient;
+  private _authUser: AuthUser | null;
   private _user: User | null;
+
   constructor(client: EcomClient) {
     this._client = client;
-    this._user = null;
-
+    this._authUser = null;
+    this._user = null
     // Initialize Firebase
-    firebase.initializeApp(this._client.firebaseConfig);
+    firebase.initializeApp(this._client.firebaseConfig, 'ecomlibrary');
   }
 
 
-  get currentUser(): User | null {
-    return this._user;
+  get currentUser(): AuthUser | null {
+    return this._authUser;
   }
 
   /**
