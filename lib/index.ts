@@ -5,8 +5,13 @@ import { Db } from './db';
 import { openDB } from 'idb';
 import fetch from 'cross-fetch';
 import { Auth } from './auth';
+import { Address } from './address';
+import { Order } from './order';
 
 import { FirebaseOptions } from '@firebase/app-types';
+
+const ECOM_FIREBASE_KEY_SERVER_URL = 'https://ecom-key-server.firebaseapp.com';
+
 
 export interface EcomClientOptions {
   endpoint: string,
@@ -84,6 +89,67 @@ export class EcomClient {
     }
   }
 
+  /**
+   * Get the Firebase config based on the current URL
+   *
+   * @param {string} hostname e.g. test.example.com
+   * @return {object} firebase config object
+   */
+  static async getFirebaseConfig(hostname: string) {
+    if (!hostname) {
+      const url = new URL(window.location.href);
+      hostname = url.hostname
+    }
+
+    try {
+      let uri = `${ECOM_FIREBASE_KEY_SERVER_URL}/${hostname}.json`;
+      let res = await fetch(uri, {
+        method: 'GET',
+        cache: 'no-cache',
+        headers: {
+          'Accept': 'application/json',
+        },
+        mode: 'cors',
+      });
+
+      if (res.status >= 400) {
+          return null;
+      }
+
+      if (res.status === 200) {
+        return await res.json();
+      }
+
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /**
+   * Returns system info including Database, Google and App configuration.
+   * @returns {Object}
+   */
+  async getSystemInfo() {
+    try {
+      let res = await this.get(`${this.endpoint}/sysinfo`);
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = Error(data.message);
+        throw e;
+      }
+
+      if (res.status === 200) {
+        let data = await res.json();
+        if (this.debug) {
+          console.dir(data);
+        }
+        return data;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
   setDebugMode(mode : boolean) {
     this.debug = mode;
   }
@@ -130,7 +196,7 @@ export class EcomClient {
       mode: 'cors',
     };
 
-    if ((method == 'POST') && (!body)) {
+    if ((method === 'POST') && (!body)) {
       opts.headers['Content-Length'] = '0';
     }
 
@@ -236,6 +302,46 @@ export class EcomClient {
       return null;
     } catch (err) {
       console.error(err);
+      throw err;
+    }
+  }
+
+  async placeGuestOrder(contactName: string, email: string, cartId : string, billing: Address, shipping: Address,) : Promise<Order | null> {
+    try {
+      const res = await this.post(`${this.endpoint}/orders`, {
+        contact_name: contactName,
+        email,
+        cart_id: cartId,
+        billing_address: billing.toOrderObject(),
+        shopping_address: shipping.toOrderObject()
+      });
+
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = Error(data.message);
+        throw e;
+      }
+
+      if (res.status === 200) {
+        let data = await res.json();
+
+        const order = new Order(this,
+          data.id,
+          data.status,
+          data.payment,
+          data.customer.contact_name,
+          data.customer.email,
+          data.billing_address,
+          data.shipping_address,
+          new Date(data.created),
+          new Date(data.modified)
+        );
+
+        return order;
+      }
+
+      return null;
+    } catch (err) {
       throw err;
     }
   }

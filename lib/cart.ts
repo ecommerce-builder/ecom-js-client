@@ -84,12 +84,16 @@ export class Cart {
     let data = await res.json();
 
     let items: CartItem[] = [];
-    data.items.forEach((item: {sku: string; qty: number; unit_price: number; created: string, modified: string }) => {
+    data.items.forEach((item: {sku: string; name: string; qty: number; unit_price: number; created: string, modified: string }) => {
       let i = new CartItem(this.client, item.sku, item.qty, item.unit_price, new Date(item.created), new Date(item.modified));
       items.push(i);
     });
     this.items = items;
     return items;
+  }
+
+  getCartId() : string{
+    return this.id;
   }
 
   findItem(sku: string) : object | null {
@@ -102,17 +106,25 @@ export class Cart {
   }
 
   countItems() : number {
-    return this.items.length;
+    let count = 0;
+    this.items.forEach((i) => {
+      count += i.qty;
+    });
+    return count;
   }
 
   /**
    * Adds an item to the shopping cart
-   * @param {string} sku
+   * @param {string} productId
    * @param {number} qty
    */
-  async addItem(sku: string, qty: number) {
+  async addItem(productId: string, qty: number) {
     try {
-      const res = await this.client.post(`${this.client.endpoint}/carts/${this.id}/items`, {sku, qty});
+      const res = await this.client.post(`${this.client.endpoint}/carts/${this.id}/items`, {
+        product_id: productId,
+        qty: qty
+      });
+
       if (res.status >= 400) {
         let data = await res.json();
         let e = Error(data.message)
@@ -120,8 +132,9 @@ export class Cart {
       }
 
       let data = await res.json();
-      this.items.push(new CartItem(this.client,
-        data.sku, data.qty, data.unit_price, new Date(data.created), new Date(data.modified)));
+      const cartItem = new CartItem(this.client, data.sku, data.qty, data.unit_price, new Date(data.created), new Date(data.modified));
+
+      this.items.push(cartItem);
     } catch (err) {
       console.error(err);
       throw err;

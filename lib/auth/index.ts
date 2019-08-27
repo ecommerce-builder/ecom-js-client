@@ -22,7 +22,7 @@ export class Auth {
     this._authUser = null;
     this._user = null
     // Initialize Firebase
-    firebase.initializeApp(this._client.firebaseConfig, 'ecomlibrary');
+    firebase.initializeApp(this._client.firebaseConfig);
   }
 
 

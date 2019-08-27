@@ -1,4 +1,21 @@
 # CHANGELOG
+## 12.2.0 (Wed 21 Aug 2019)
++ Price list create, read, updated, delete and list methods.
+
+## 11.0.0 (Tue 29 Jul 2019)
++ Requires API `v0.56.0`.
++ Split cart and cart item to two files.
++ Cart items now contain the name property alongside the sku and qty.
++ Update test suite as unit prices are now 4 decimial places (integer) and cart count is absolute, not per type.
++ Update npm deps.
+
+## 10.0.4 (Fri 12 Jul 2019)
++ Fix `item.updateQty` method to update the qty property.
+
+## 10.0.3 (Fri 12 Jul 2019)
++ Fix `cart.countItems()` method to give sum of qtys.
++ Update npm deps.
+
 ## 10.0.0 (Mon 1 Jul 2019)
 + Uses `id` in place of `uuid` for all lib calls.
 + Fix bug causing No cart error.

@@ -37,14 +37,14 @@ export class Category {
     return this.categories.length > 0;
   }
 
-  async loadProducts(forceLoad = false) {
+  async loadProducts() {
     if (!this.isLeaf()) {
       throw Error('cannot load products on non-leaf category');
     }
 
     let promises : Promise<void>[] = [];
     this.products.forEach(function(product) {
-      promises.push(product.load(forceLoad));
+      promises.push(product.load());
     });
     return Promise.all(promises);
   }
@@ -91,15 +91,6 @@ export class Category {
       });
     }
     return categories;
-  }
-
-  unloadProducts() {
-    if (!this.isLeaf()) {
-      throw Error('cannot load products on non-leaf category');
-    }
-    this.products.forEach(function(product) {
-      product.unload();
-    });
   }
 
   /**

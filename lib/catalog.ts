@@ -97,7 +97,7 @@ export class Catalog {
     function walkTree(catalog: Catalog, n: categoryData, c: Category) {
       if (n.hasOwnProperty('products') && n.products && n.products.constructor === Array) {
         n.products.forEach(function(p) {
-          c.appendProduct(new Product(catalog.client, p.sku, p.path, p.name));
+          c.appendProduct(new Product(catalog.client, p.id, p.path, p.sku, p.ean, p.name));
         });
       }
 
@@ -202,14 +202,16 @@ export class Catalog {
 }
 
 type categoryProductData = {
-  sku: string,
-  path: string,
-  name: string,
+  id: string
+  path: string
+  sku: string
+  ean: string
+  name: string
 };
 
 type categoryData = {
-  segment: string,
-  name: string,
+  segment: string
+  name: string
   categories: categoryData[]
   products?: categoryProductData[]
 };
