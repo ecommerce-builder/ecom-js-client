@@ -1,7 +1,7 @@
 import EcomClient from './index';
-import Address from './address';
+import { Address } from './address';
 
-class Customer {
+export class Customer {
   client: EcomClient;
   id: string;
   uid: string;
@@ -150,5 +150,3 @@ class Customer {
     }
   }
 }
-
-export default Customer;

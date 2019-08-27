@@ -23,7 +23,7 @@ export default [
     treeshake: false,
     output: [
       { file: pkg.browser, format: 'cjs', sourcemap: true },
-      { file: pkg.module, format: 'es', sourcemap: true },
+      { file: pkg.module, format: 'esm', sourcemap: true },
     ],
     plugins,
     external,
@@ -42,7 +42,9 @@ export default [
         sourcemap: false,
         name: 'EcomClient',
         globals: {
-          idb: 'idb'
+          '@firebase/app': 'firebase',
+          idb: 'idb',
+          'cross-fetch': 'fetch',
         }
       },
     ],
@@ -59,7 +61,9 @@ export default [
         sourcemap: 'inline',
         name: 'EcomClient',
         globals: {
-          idb: 'idb'
+          '@firebase/app': 'firebase',
+          idb: 'idb',
+          'cross-fetch': 'fetch',
         }
       },
     ],

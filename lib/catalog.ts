@@ -1,11 +1,11 @@
 import EcomClient from './index';
-import Product from './product';
-import Category from './category';
+import { Product } from './product';
+import { Category } from './category';
 
 type ProductMap = {[key: string]: Product};
 type ProductPathCategoriesMap = {[key: string]: Category[]};
 
-class Catalog {
+export class Catalog {
   client: EcomClient;
   leafCategories: Category[];
   nonLeafCategories: Category[];
@@ -213,5 +213,3 @@ type categoryData = {
   categories: categoryData[]
   products?: categoryProductData[]
 };
-
-export default Catalog;

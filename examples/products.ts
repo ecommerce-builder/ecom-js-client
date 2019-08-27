@@ -1,0 +1,39 @@
+import EcomClient from '..';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDlPXxufb303i4e7fDV9fiURU05lQeX9Kc",
+  authDomain: "test-data-oak.firebaseapp.com",
+  databaseURL: "https://test-data-oak.firebaseio.com",
+  projectId: "test-data-oak",
+  storageBucket: "test-data-oak.appspot.com",
+  messagingSenderId: "353707113320",
+  appId: "1:353707113320:web:911378b89130dd98"
+};
+
+
+const client = EcomClient.initApp({
+  endpoint: 'http://localhost:8080',
+  firebaseConfig: firebaseConfig
+});
+
+
+(async () => {
+  try {
+    const authUser = await client.auth.signInWithEmailAndPassword('andy+root@andyfusniak.com', 'root8QFSQ2BzCqrk');
+    console.dir(authUser);
+
+    const docRef = client.db.products.doc('6988381a-9121-4c0c-a191-37a3973a2fab');
+    const snap = await docRef.get();
+
+    if (snap.exists) {
+      console.dir(snap.data());
+    }
+
+    await client.auth.sendPasswordResetEmail('andy+root@andyfusniak.com');
+
+  } catch (err) {
+    console.log(err.status);
+    console.log(err.code);
+    console.log(err.message);
+  }
+})();

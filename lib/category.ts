@@ -1,7 +1,7 @@
 import EcomClient from './index';
-import Product from './product';
+import { Product } from './product';
 
-class Category {
+export class Category {
   client: EcomClient;
   segment: string;
   path: string;
@@ -136,5 +136,3 @@ class BreadCrumb {
     this.disabled = disabled;
   }
 }
-
-export default Category;

@@ -1,6 +1,6 @@
 import EcomClient from './index';
 
-class Address {
+export class Address {
   client: EcomClient;
   id: string;
   typ: string;
@@ -59,5 +59,3 @@ class Address {
     }
   }
 }
-
-export default Address;

@@ -1,6 +1,6 @@
 import EcomClient from './index';
-import Category from './category';
-import Price from './price';
+import { Category } from './category';
+import { Price } from './price';
 
 type imageData = {
   id: string,
@@ -22,7 +22,7 @@ type priceData = {
   modified: string
 }
 
-class Image {
+export class Image {
   client: EcomClient;
   id: string;
   sku: string;
@@ -74,7 +74,7 @@ type productResponseData = {
 
 type PricingMap = {[key: string]: Price}
 
-class Product {
+export class Product {
   client: EcomClient;
   sku: string;
   ean: string | undefined;
@@ -173,5 +173,3 @@ class Product {
     this.pricing = {};
   }
 }
-
-export default Product;

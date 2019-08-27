@@ -1,40 +1,56 @@
-import Cart from './cart';
-import Customer from './customer';
-import Catalog from './catalog';
+import { Cart } from './cart';
+import { Customer } from './customer';
+import { Catalog } from './catalog';
+import { Db } from './db';
 import { openDB } from 'idb';
+import fetch from 'cross-fetch';
+import { Auth } from './auth';
 
-type ecomClientOptions = {
-  endpoint: string
-  token: string
-  customerId: string
-  imageBaseURL: string
+import { FirebaseOptions } from '@firebase/app-types';
+
+export interface EcomClientOptions {
+  endpoint: string,
+  firebaseConfig: FirebaseOptions
+  imageBaseURL?: string
+  debug?: boolean
+  fetch?: any
 };
 
-class EcomClient {
+export class EcomClient {
   endpoint: string;
-  token: string;
-  customerId: string;
+  firebaseConfig: FirebaseOptions
+  _token: string | undefined;
   imageBaseURL: string;
   catalog: Catalog | null;
   customer: Customer | null;
   cart: Cart | null;
+  auth: Auth;
+  db: Db;
+  fetch: any;
   dbPromise: any;
   debug: boolean;
 
-  constructor(opts: ecomClientOptions) {
+  constructor(opts: EcomClientOptions) {
     this.endpoint = opts.endpoint;
-    this.token = opts.token;
-    this.customerId = opts.customerId || '';
+    this.firebaseConfig = opts.firebaseConfig;
+    this._token = undefined;
     this.imageBaseURL = opts.imageBaseURL || '';
     this.catalog = null;
     this.customer = null;
     this.cart = null;
+    this.db = new Db(this);
+    this.auth = new Auth(this);
     this.dbPromise = undefined;
-    this.debug = false;
+    this.fetch = opts.fetch || fetch;
+    this.debug = opts.debug || false;
   }
 
   static version() {
       return 'ECOM_VERSION';
+  }
+
+  static initApp(opts: EcomClientOptions): EcomClient {
+    return new EcomClient(opts);
   }
 
   async init(config: { uid: string; } ) {
@@ -73,11 +89,7 @@ class EcomClient {
   }
 
   setJWT(token: string) : void {
-    this.token = token;
-  }
-
-  setCustomerId(id: string) : void {
-    this.customerId = id;
+    this._token = token;
   }
 
   setImageBaseURL(url: string) : void {
@@ -86,10 +98,6 @@ class EcomClient {
 
   getImageBaseURL() : string {
     return this.imageBaseURL;
-  }
-
-  getCustomerId() : string {
-    return this.customerId;
   }
 
   async get(url: string) {
@@ -117,7 +125,7 @@ class EcomClient {
       method,
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${this.token}`,
+        'Authorization': `Bearer ${this._token}`,
       },
       mode: 'cors',
     };
@@ -130,7 +138,11 @@ class EcomClient {
       opts.body = JSON.stringify(body);
       opts.headers['Content-Type'] = 'application/json';
     }
-    return await fetch(url, opts);
+    if (this.debug) {
+      console.log(`fetch url=${url}`);
+      console.dir(opts);
+    }
+    return await this.fetch(`${this.endpoint}${url}`, opts);
   }
 
 
@@ -202,52 +214,6 @@ class EcomClient {
     return null;
   }
 
-  /**
-   * Create a new customer
-   * @param {string} email
-   * @param {string} password
-   * @param {string} firstname
-   * @param {string} lastname
-   * @returns {object|null}
-   *
-   */
-  async createCustomer(email: string, password: string, firstname: string, lastname: string) : Promise<Customer | null> {
-    try {
-      let res = await this.post(`${this.endpoint}/customers`, {
-        email,
-        password,
-        firstname,
-        lastname,
-      });
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = Error(data.message);
-        throw e;
-      }
-
-      if (res.status === 201) {
-        let data = await res.json();
-        const customer = new Customer(
-          this,
-          data.id,
-          data.uid,
-          data.email,
-          data.firstname,
-          data.lastname,
-          new Date(data.created),
-          new Date(data.modified),
-        );
-        this.customer = customer;
-        return customer;
-      }
-
-      return null;
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
   async getCustomer(user: any) : Promise<Customer | null> {
     try {
       const idTokenResult = await user.getIdTokenResult();
@@ -275,4 +241,5 @@ class EcomClient {
   }
 }
 
+// tslint:disable-next-line:no-default-export
 export default EcomClient;

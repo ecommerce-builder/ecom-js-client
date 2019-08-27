@@ -1,4 +1,4 @@
-class Price {
+export class Price {
   unitPrice: number;
   created: Date;
   modified: Date;
@@ -9,5 +9,3 @@ class Price {
       this.modified = modified;
   }
 }
-
-export default Price;

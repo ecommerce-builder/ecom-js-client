@@ -1,6 +1,6 @@
-import EcomClient from './index';
+  import EcomClient from './index';
 
-class CartItem {
+export class CartItem {
   client: EcomClient;
   sku: string;
   qty: number;
@@ -63,7 +63,7 @@ class CartItem {
 
 }
 
-class Cart {
+export class Cart {
   client: EcomClient;
   id: string;
   items: CartItem[]
@@ -148,5 +148,3 @@ class Cart {
     }
   }
 }
-
-export default Cart;
