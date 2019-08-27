@@ -23,11 +23,34 @@ export class Auth {
     this._user = null
     // Initialize Firebase
     firebase.initializeApp(this._client.firebaseConfig);
+
+    if (firebase.auth) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          console.dir(user);
+        } else {
+          // No user is signed in.
+        }
+      });
+    }
   }
 
-
   get currentUser(): AuthUser | null {
-    return this._authUser;
+    if (firebase.auth) {
+      const fbCurrentUser = firebase.auth().currentUser;
+      if (fbCurrentUser) {
+        const authUser: AuthUser = {
+          displayName: fbCurrentUser.displayName,
+          email: fbCurrentUser.email,
+          emailVerified: fbCurrentUser.emailVerified,
+          isAnonymous: fbCurrentUser.isAnonymous,
+          uid: fbCurrentUser.uid
+        };
+        return authUser;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -116,7 +139,7 @@ export class Auth {
               uid: user.uid,
             };
             this._authUser = authUser;
-            return authUser;
+            return this._authUser;
           }
         }
         throw Error('failed to signin');
