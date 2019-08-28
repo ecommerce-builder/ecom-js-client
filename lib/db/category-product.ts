@@ -27,7 +27,7 @@ export class CategoryDocumentReference extends DocumentReference {
   }
 
   async get(): Promise<CategoryDocumentSnapshot> {
-    return new CategoryDocumentSnapshot(this.id, {
+    return new CategoryDocumentSnapshot(this, {
       priceListCode: 'test',
       currenyCode: 'GBP',
       strategy: 'simple',

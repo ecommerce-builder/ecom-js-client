@@ -5,6 +5,7 @@ certs/
 coverage/
 dist/
 examples/*.js
+examples/firebase-config.ts
 firebase-config.json
 tsbuild/
 node_modules/

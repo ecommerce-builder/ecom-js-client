@@ -84,10 +84,17 @@ export abstract class Query {
  * documents can be determined via the empty and size properties.
  */
 export class QuerySnapshot {
-  private docs: Array<QueryDocumentSnapshot>;
+  private _docs: QueryDocumentSnapshot[];
 
-  constructor(docs: Array<QueryDocumentSnapshot>) {
-    this.docs = docs;
+  constructor(docs: QueryDocumentSnapshot[]) {
+    this._docs = docs;
+  }
+
+  /**
+   * @readonly
+   */
+  get docs(): QueryDocumentSnapshot[] {
+    return this._docs;
   }
 
   /**

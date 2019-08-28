@@ -99,7 +99,7 @@ export class ImageDocumentReference extends DocumentReference {
       created: new Date(),
       modified: new Date()
     };
-    return new ImageDocumentSnapshot(this.id, exampleData);
+    return new ImageDocumentSnapshot(this, exampleData);
   }
 }
 

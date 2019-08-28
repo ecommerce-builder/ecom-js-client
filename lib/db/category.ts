@@ -46,7 +46,7 @@ export class CategoriesDocumentReference extends DocumentReference {
       created: new Date(),
       modified: new Date()
     }
-    return new CategoriesDocumentSnapshot('12345', exampleData);
+    return new CategoriesDocumentSnapshot(this, exampleData);
   }
   async delete(): Promise<void> {}
 }

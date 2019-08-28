@@ -1,17 +1,41 @@
 import { DocumentReference } from './reference';
+import { ProductDocumentData } from './product';
 import { CategoriesDocumentData } from './category';
 import { PriceListDocumentData } from './price-list';
 import { UserDocumentData } from './user';
 
-type DocSnapData = PriceListDocumentData | CategoriesDocumentData | UserDocumentData;
+type DocSnapData =
+  ProductDocumentData |
+  PriceListDocumentData |
+  CategoriesDocumentData |
+  UserDocumentData;
 
 export abstract class DocumentSnapshot {
-  readonly id: string;
+  private _ref: DocumentReference;
   private _data: DocSnapData | undefined = undefined;
 
-  constructor(id: string, data: DocSnapData | undefined) {
-    this.id = id;
+  /**
+   * @hideconstructor
+   */
+  constructor(ref: DocumentReference, data: DocSnapData | undefined) {
+    this._ref = ref;
     this._data = data;
+  }
+
+  /**
+   * A [DocumentReference]{@link DocumentReference} for the document
+   * @readonly
+   */
+  get ref(): DocumentReference {
+    return this._ref;
+  }
+
+  /**
+   * The ID of the document for which this DocumentSnapshot contains data
+   * @readonly
+   */
+  get id(): string {
+    return this._ref.id;
   }
 
   get exists() : boolean {
@@ -34,14 +58,8 @@ export abstract class DocumentSnapshot {
 * documents, the exists property will always be true and
 * data() will never return 'undefined'
 */
-export class QueryDocumentSnapshot {
-  readonly id: string;
-  exists: boolean;
-  ref: DocumentReference;
-
-  private constructor(id: string, exists: boolean, ref: DocumentReference) {
-    this.id = id;
-    this.exists = exists;
-    this.ref = ref;
+export class QueryDocumentSnapshot extends DocumentSnapshot {
+  constructor(ref: DocumentReference, data: DocSnapData | undefined) {
+    super(ref, data);
   }
 }

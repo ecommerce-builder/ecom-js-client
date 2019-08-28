@@ -5,7 +5,7 @@ import { ImageCollectionReference } from './image';
 import { EcomError } from './error';
 import { Db } from '.';
 
-type ProductDocumentData = {
+export interface ProductDocumentData {
   path: string;
   sku: string
   name: string
@@ -28,13 +28,72 @@ export class ProductCollectionReference extends CollectionReference {
     return new ProductDocumentReference(this.client.db, id, this);
   }
 
-  async add(product: any): Promise<ProductDocumentReference> {
-    console.log(product);
-    return new ProductDocumentReference(this.client.db, '12345', this);
+  async add(product: SetProductDocumentData): Promise<ProductDocumentReference> {
+    let response = await this.client.post('/products', {
+      path: product.path,
+      sku: product.sku,
+      name: product.name
+    });
+
+    if (response.status >= 400) {
+      let data = await response.json();
+      throw new EcomError(data.status, data.code, data.message);
+    }
+
+    if (response.status === 201) {
+      let data = await response.json();
+
+      // const snapshotData: ProductDocumentData = {
+      //   path: data.path,
+      //   sku: data.sku,
+      //   name: data.name,
+      //   created: new Date(data.created),
+      //   modified: new Date(data.modified)
+      // };
+
+      // const docSnap = new ProductDocumentSnapshot(data.id, snapshotData);
+      const docRef = new ProductDocumentReference(this.client.db, data.id, this);
+      return docRef;
+    }
+
+    throw Error('failed to add a new product');
   }
 
-  async get() : Promise<QuerySnapshot> {
-    return new ProductQuerySnapshot([]);
+  async get(): Promise<QuerySnapshot> {
+    try {
+      let response = await this.client.get('/products');
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status === 200) {
+        let data = await response.json();
+        const list = data.data;
+
+        let docs: QueryDocumentSnapshot[] = [];
+        list.forEach((product: any) => {
+          const docRef = new ProductDocumentReference(this.client.db, product.id, this);
+
+          const productDocumentData: ProductDocumentData = {
+            path: product.path,
+            sku: product.sku,
+            name: product.name,
+            created: new Date(product.created),
+            modified: new Date(product.modified)
+          };
+
+          let queryDocumentSnapshot = new ProductQueryDocumentSnapshot(docRef, productDocumentData);
+
+          docs.push(queryDocumentSnapshot);
+        });
+        return new ProductQuerySnapshot(docs);
+      }
+      throw Error('failed to get product collection');
+    } catch (err) {
+      throw err;
+    }
   }
 }
 
@@ -54,7 +113,35 @@ export class ProductDocumentReference extends DocumentReference {
   }
 
   async set(product: SetProductDocumentData): Promise<void> {
-    console.log(product);
+    try {
+      const response = await this._db._client.put(`/products/${this.id}`, {
+        path: product.path,
+        sku: product.sku,
+        name: product.name
+      });
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status >= 200) {
+        //let data = await response.json();
+
+        // const snapshotData: ProductDocumentData = {
+        //   path: data.path,
+        //   sku: data.sku,
+        //   name: data.name,
+        //   created: new Date(data.created),
+        //   modified: new Date(data.modified)
+        // };
+        //const docSnap = new ProductDocumentSnapshot(this.id, snapshotData);
+        return;
+      }
+      throw Error('failed to update product');
+    } catch (err) {
+      throw err;
+    }
   }
   async get(): Promise<ProductDocumentSnapshot> {
     try {
@@ -74,40 +161,41 @@ export class ProductDocumentReference extends DocumentReference {
           created: new Date(data.created),
           modified: new Date(data.modified)
         };
-        return new ProductDocumentSnapshot(this.id, snapshotData);
+        return new ProductDocumentSnapshot(this, snapshotData);
       }
 
-      return new ProductDocumentSnapshot(this.id, undefined);
+      return new ProductDocumentSnapshot(this, undefined);
     } catch (err) {
       throw err;
     }
   }
-  async delete(): Promise<void> {}
-}
+  async delete(): Promise<void> {
+    try {
+      const response = await this._db._client.delete(`/products/${this.id}`);
 
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status == 204) {
+        return;
+      }
+      throw Error('failed to delete product');
+    } catch (err) {
+      throw err;
+    }
+  }
+}
 
 export class ProductDocumentSnapshot extends DocumentSnapshot {
 
 }
 
+export class ProductQueryDocumentSnapshot extends ProductDocumentSnapshot {}
+
 export class ProductQuerySnapshot extends QuerySnapshot {
-  constructor(docs: Array<QueryDocumentSnapshot>) {
+  constructor(docs: QueryDocumentSnapshot[]) {
    super(docs);
   }
 }
-
-// class ProductDocumentSnapshot {
-//   readonly id: string;
-//   exists: boolean;
-//   ref: DocumentReference;
-
-//   constructor(id: string, exists: boolean, ref: DocumentReference) {
-//     this.id = id;
-//     this.exists = exists;
-//     this.ref = ref;
-//   }
-
-//   data(): ProductDocumentData | undefined {
-//     return undefined;
-//   }
-// }

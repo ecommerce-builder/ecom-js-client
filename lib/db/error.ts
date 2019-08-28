@@ -8,3 +8,7 @@ export class EcomError extends Error {
     this.code = code;
   }
 }
+
+export enum ApiErrorResponseCodes {
+  ProductsPathExists = 'products/product-path-exists',
+}

@@ -142,10 +142,10 @@ export class PriceListDocumentReference extends DocumentReference {
           created: new Date(data.created),
           modified: new Date(data.modified)
         };
-        return new PriceListDocumentSnapshot(this.id, snapshotData);
+        return new PriceListDocumentSnapshot(this, snapshotData);
       }
 
-      return new PriceListDocumentSnapshot(this.id, undefined);
+      return new PriceListDocumentSnapshot(this, undefined);
     } catch (err) {
       throw err;
     }

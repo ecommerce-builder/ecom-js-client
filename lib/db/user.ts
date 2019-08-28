@@ -57,7 +57,7 @@ export class UserDocumentReference extends DocumentReference {
       created: new Date(),
       modified: new Date()
     };
-    return new UserDocumentSnapshot('12345', exampleData);
+    return new UserDocumentSnapshot(this, exampleData);
   }
 
   async delete(): Promise<void> {}
