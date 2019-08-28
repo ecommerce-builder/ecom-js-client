@@ -24,7 +24,7 @@ export class ImageCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : ImageDocumentReference {
-    return new ImageDocumentReference(this.client.db, id, this);
+    return new ImageDocumentReference(this._client, id, this);
   }
 
   /**
@@ -46,7 +46,7 @@ export class ImageCollectionReference extends CollectionReference {
 
     if (this.parent)
     try {
-      let response = await this.client.post(`/product/${productId}/images`, image);
+      let response = await this._client.post(`/product/${productId}/images`, image);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -72,14 +72,14 @@ export class ImageCollectionReference extends CollectionReference {
 
         console.dir(snapRef);
 
-        const docRef = new ImageDocumentReference(this.client.db, data.id, this);
+        const docRef = new ImageDocumentReference(this._client, data.id, this);
         return docRef;
       }
     } catch (err) {
       throw err;
     }
     console.log(image);
-    return new ImageDocumentReference(this.client.db, '12345', this);
+    return new ImageDocumentReference(this._client, '12345', this);
   }
 
   async get() : Promise<QuerySnapshot> {

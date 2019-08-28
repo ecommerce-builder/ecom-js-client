@@ -25,12 +25,12 @@ export class CategoriesCollectionReference extends CollectionReference {
   }
 
   doc(id: string): CategoriesDocumentReference {
-    return new CategoriesDocumentReference(this.client.db, id, this);
+    return new CategoriesDocumentReference(this._client, id, this);
   }
 
   async add(product: any): Promise<CategoriesDocumentReference> {
     console.log(product);
-    return new CategoriesDocumentReference(this.client.db, '12345', this);
+    return new CategoriesDocumentReference(this._client, '12345', this);
   }
 
   async get(): Promise<QuerySnapshot> {
@@ -39,7 +39,7 @@ export class CategoriesCollectionReference extends CollectionReference {
 
   async set(data: SetCategoriesCollectionData): Promise<void> {
     try {
-      const response = await this.client.put('/categories', data);
+      const response = await this._client.put('/categories', data);
 
       if (response.status >= 400) {
         let data = await response.json();

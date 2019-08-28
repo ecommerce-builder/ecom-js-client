@@ -8,12 +8,12 @@ export class CategoryCollectionReference extends CollectionReference {
   }
 
   doc(id: string): DocumentReference {
-    return new CategoryDocumentReference(this.client.db, id, this);
+    return new CategoryDocumentReference(this._client, id, this);
   }
 
   async add(product: any): Promise<DocumentReference> {
     console.log(product);
-    return new CategoryDocumentReference(this.client.db, '12345', this);
+    return new CategoryDocumentReference(this._client, '12345', this);
   }
 
   async get() : Promise<CategoryQuerySnapshot> {

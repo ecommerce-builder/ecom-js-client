@@ -28,12 +28,12 @@ export class UserCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : UserDocumentReference {
-    return new UserDocumentReference(this.client.db, id, this);
+    return new UserDocumentReference(this._client, id, this);
   }
 
   async add(user: NewUser): Promise<UserDocumentReference> {
     console.log(user);
-    return new UserDocumentReference(this.client.db, '12345', this);
+    return new UserDocumentReference(this._client, '12345', this);
   }
 
   async get() : Promise<QuerySnapshot> {

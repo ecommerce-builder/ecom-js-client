@@ -29,12 +29,12 @@ export class PriceListCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : PriceListDocumentReference {
-    return new PriceListDocumentReference(this.client.db, id, this);
+    return new PriceListDocumentReference(this._client, id, this);
   }
 
   async add(data: SetPriceListDocumentData): Promise<DocumentReference | undefined> {
     try {
-      let response = await this.client.post('/price-lists', {
+      let response = await this._client.post('/price-lists', {
         price_list_code: data.priceListCode,
         currency_code: data.currencyCode,
         strategy: data.strategy,
@@ -66,7 +66,7 @@ export class PriceListCollectionReference extends CollectionReference {
 
         console.dir(snapRef);
 
-        const docRef = new PriceListDocumentReference(this.client.db, data.id, this);
+        const docRef = new PriceListDocumentReference(this._client, data.id, this);
         return docRef;
       }
       return undefined;
@@ -83,7 +83,7 @@ export class PriceListCollectionReference extends CollectionReference {
 export class PriceListDocumentReference extends DocumentReference {
   async set(data: SetPriceListDocumentData): Promise<void> {
     try {
-      const response = await this._db._client.put(`/price-lists/${this.id}`, {
+      const response = await this._client.put(`/price-lists/${this.id}`, {
         price_list_code: data.priceListCode,
         currency_code: data.currencyCode,
         strategy: data.strategy,
@@ -122,7 +122,7 @@ export class PriceListDocumentReference extends DocumentReference {
 
   async get(): Promise<PriceListDocumentSnapshot> {
     try {
-      const response = await this._db._client.get(`/price-lists/${this.id}`);
+      const response = await this._client.get(`/price-lists/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();

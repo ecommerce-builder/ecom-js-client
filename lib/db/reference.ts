@@ -1,17 +1,16 @@
 import { DocumentSnapshot, QueryDocumentSnapshot } from './document';
 import EcomClient from '../index';
-import { Db } from '.';
 
 export abstract class DocumentReference {
-  protected _db: Db;
+  protected _client: EcomClient;
   private _id: string;
   private _parent: CollectionReference
 
   /**
    * @hideconstructor
    */
-  constructor(db: Db, id: string, parent: CollectionReference) {
-    this._db = db;
+  constructor(client: EcomClient, id: string, parent: CollectionReference) {
+    this._client = client;
     this._id = id;
     this._parent = parent;
   }
@@ -28,7 +27,7 @@ export abstract class DocumentReference {
 }
 
 export abstract class CollectionReference {
-  private _client: EcomClient;
+  protected _client: EcomClient;
   private _parent: DocumentReference | null;
 
   /**
@@ -39,9 +38,9 @@ export abstract class CollectionReference {
     this._parent = parent;
   }
 
-  get client() : EcomClient {
-    return this._client!;
-  }
+  // get client() : EcomClient {
+  //   return this._client!;
+  // }
 
   get parent() : DocumentReference | null {
     return this._parent;
