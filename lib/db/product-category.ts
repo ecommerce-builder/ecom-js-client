@@ -79,16 +79,32 @@ export class ProductCategoryDocumentReference extends DocumentReference {
   }
 
   async get(): Promise<ProductCategoryDocumentSnapshot> {
-    return new ProductCategoryDocumentSnapshot(this, {
-      priceListCode: 'test',
-      currenyCode: 'GBP',
-      strategy: 'simple',
-      name: 'test',
-      description: 'test',
-      incTax: false,
-      created: new Date(),
-      modified: new Date(),
-    });
+    try {
+      const response = await this._client.get(`/products-categories/${this.id}`);
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status == 200) {
+        let data = await response.json();
+
+        const snapshotData: ProductCategoryDocumentData = {
+          productId: data.product_id,
+          categoryId: data.category_id,
+          pri: data.pri,
+          created: new Date(data.created),
+          modified: new Date(data.modified)
+        };
+
+        return new ProductCategoryDocumentSnapshot(this, snapshotData);
+      }
+
+      return new ProductCategoryDocumentSnapshot(this, undefined);
+    } catch (err) {
+      throw err;
+    }
   }
 
   async delete(): Promise<void> {
