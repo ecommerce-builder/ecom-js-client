@@ -25,13 +25,14 @@ export class Auth {
     firebase.initializeApp(this._client.firebaseConfig);
 
     if (firebase.auth) {
-      firebase.auth().onAuthStateChanged(function(user) {
+      firebase.auth().onIdTokenChanged(async (user) => {
         if (user) {
-          console.dir(user);
-        } else {
-          // No user is signed in.
+           // record the new token internally
+          this._client._token = await user.getIdToken();
         }
       });
+
+
     }
   }
 
@@ -51,6 +52,12 @@ export class Auth {
     }
 
     return null;
+  }
+
+  onAuthStateChanged(callback: any) {
+    if (firebase.auth) {
+      firebase.auth().onAuthStateChanged(callback);
+    }
   }
 
   /**
@@ -95,6 +102,52 @@ export class Auth {
       return null;
     } catch (err) {
       console.error(err);
+      throw err;
+    }
+  }
+
+  /**
+   *
+   * @param developerKey secret key
+   */
+  async signInWithDeveloperKey(developerKey: string): Promise<AuthUser> {
+    try {
+      let response = await this._client.post('/signin-with-devkey', {
+        key: developerKey
+      });
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status === 201) {
+        let data = await response.json();
+        const token = data.custom_token;
+
+        if (firebase.auth) {
+          const userCredential = await firebase.auth().signInWithCustomToken(token);
+          if (userCredential) {
+            const user = userCredential.user;
+            if (user) {
+              this._client._token = await user.getIdToken();
+
+              const authUser: AuthUser = {
+                displayName: user.displayName,
+                email: user.email,
+                emailVerified: user.emailVerified,
+                isAnonymous: user.isAnonymous,
+                uid: user.uid,
+              };
+              this._authUser = authUser;
+              return this._authUser;
+            }
+          }
+        }
+      }
+
+      throw Error('failed to signin with developer key');
+    } catch (err) {
       throw err;
     }
   }
