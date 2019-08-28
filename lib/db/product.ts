@@ -13,7 +13,6 @@ export interface ProductDocumentData {
 }
 
 interface SetProductDocumentData {
-
   path: string
   sku: string
   name: string

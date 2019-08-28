@@ -24,6 +24,7 @@ export abstract class DocumentReference {
   }
 
   abstract get(): Promise<DocumentSnapshot>
+  abstract delete(): Promise<void>
 }
 
 export abstract class CollectionReference {
@@ -42,6 +43,13 @@ export abstract class CollectionReference {
   //   return this._client!;
   // }
 
+  /**
+   * A reference to the containing DocumentReference if this is a
+   * subcollection. If this isn't a subcollection, the reference
+   * is null.
+   *
+   * @readonly
+   */
   get parent() : DocumentReference | null {
     return this._parent;
   }

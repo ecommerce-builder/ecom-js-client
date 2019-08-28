@@ -3,41 +3,41 @@ import { CollectionReference, DocumentReference, QuerySnapshot } from './referen
 import { QueryDocumentSnapshot, DocumentSnapshot } from './document';
 import { EcomError } from './error';
 
-export interface CategoriesDocumentData {
+export interface CategoryDocumentData {
   path: string
   created: Date
   modified: Date
 }
 
-interface SetCategoriesDocumentData {
+interface SetCategoryDocumentData {
   path: string
 };
 
-export interface SetCategoriesCollectionData {
+export interface SetCategoryCollectionData {
   segment: string
   name: string
-  categories: SetCategoriesCollectionData[]
+  categories: SetCategoryCollectionData[]
 }
 
-export class CategoriesCollectionReference extends CollectionReference {
+export class CategoryCollectionReference extends CollectionReference {
   constructor(client: EcomClient, parent: DocumentReference | null) {
     super(client, parent);
   }
 
-  doc(id: string): CategoriesDocumentReference {
-    return new CategoriesDocumentReference(this._client, id, this);
+  doc(id: string): CategoryDocumentReference {
+    return new CategoryDocumentReference(this._client, id, this);
   }
 
-  async add(product: any): Promise<CategoriesDocumentReference> {
+  async add(product: any): Promise<CategoryDocumentReference> {
     console.log(product);
-    return new CategoriesDocumentReference(this._client, '12345', this);
+    return new CategoryDocumentReference(this._client, '12345', this);
   }
 
   async get(): Promise<QuerySnapshot> {
-    return new CategoriesQuerySnapshot([]);
+    return new CategoryQuerySnapshot([]);
   }
 
-  async set(data: SetCategoriesCollectionData): Promise<void> {
+  async set(data: SetCategoryCollectionData): Promise<void> {
     try {
       const response = await this._client.put('/categories', data);
 
@@ -54,31 +54,31 @@ export class CategoriesCollectionReference extends CollectionReference {
       throw err;
     }
   }
-  // async link(): Promise<ProductsCategoriesDocumentReference> {
+  // async link(): Promise<ProductsCategoryDocumentReference> {
 
   // }
 }
 
-export class CategoriesDocumentReference extends DocumentReference {
-  async set(category: SetCategoriesDocumentData): Promise<void> {
+export class CategoryDocumentReference extends DocumentReference {
+  async set(category: SetCategoryDocumentData): Promise<void> {
     console.log('writing category');
     console.log(category);
   }
-  async get(): Promise<CategoriesDocumentSnapshot> {
-    const exampleData: CategoriesDocumentData = {
+  async get(): Promise<CategoryDocumentSnapshot> {
+    const exampleData: CategoryDocumentData = {
       path: 'example-cat-path',
       created: new Date(),
       modified: new Date()
     }
-    return new CategoriesDocumentSnapshot(this, exampleData);
+    return new CategoryDocumentSnapshot(this, exampleData);
   }
   async delete(): Promise<void> {}
 }
 
-class CategoriesDocumentSnapshot extends DocumentSnapshot {
+class CategoryDocumentSnapshot extends DocumentSnapshot {
 }
 
-class CategoriesQuerySnapshot extends QuerySnapshot {
+class CategoryQuerySnapshot extends QuerySnapshot {
   constructor(docs: Array<QueryDocumentSnapshot>) {
    super(docs);
   }

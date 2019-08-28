@@ -1,13 +1,15 @@
 import { DocumentReference } from './reference';
 import { ProductDocumentData } from './product';
-import { CategoriesDocumentData } from './category';
+import { CategoryDocumentData } from './category';
+import { ProductCategoryDocumentData } from './product-category';
 import { PriceListDocumentData } from './price-list';
 import { UserDocumentData } from './user';
 
 type DocSnapData =
   ProductDocumentData |
   PriceListDocumentData |
-  CategoriesDocumentData |
+  CategoryDocumentData |
+  ProductCategoryDocumentData |
   UserDocumentData;
 
 export abstract class DocumentSnapshot {

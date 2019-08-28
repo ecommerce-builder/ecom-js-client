@@ -3,7 +3,7 @@ import EcomClient from '..';
 import firebaseConfig from './firebase-config';
 
 const client = EcomClient.initApp({
-  endpoint: 'http://localhost:8080',
+  endpoint: process.env.ENDPOINT,
   firebaseConfig: firebaseConfig
 });
 

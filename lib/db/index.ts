@@ -1,13 +1,17 @@
 import EcomClient from '../index';
 import { ProductCollectionReference } from './product';
-import { CategoriesCollectionReference } from './category';
+import { CategoryCollectionReference } from './category';
+import { ProductCategoryCollectionReference } from './product-category';
 import { PriceListCollectionReference } from './price-list';
 import { UserCollectionReference } from './user';
+import { ImageCollectionReference } from './image';
 
 interface collections {
   user: UserCollectionReference | undefined
   product: ProductCollectionReference | undefined
-  category: CategoriesCollectionReference | undefined;
+  image: ImageCollectionReference | undefined
+  category: CategoryCollectionReference | undefined;
+  productCategory: ProductCategoryCollectionReference | undefined;
   priceList: PriceListCollectionReference| undefined;
 }
 
@@ -20,7 +24,9 @@ export class Db {
     this._rootCollections = {
         user: undefined,
         product: undefined,
+        image: undefined,
         category: undefined,
+        productCategory: undefined,
         priceList: undefined
     }
   }
@@ -39,11 +45,25 @@ export class Db {
     return this._rootCollections.product;
   }
 
-  get categories(): CategoriesCollectionReference {
+  get images(): ImageCollectionReference {
+    if (!this._rootCollections.image) {
+      this._rootCollections.image = new ImageCollectionReference(this._client, null);
+    }
+    return this._rootCollections.image;
+  }
+
+  get categories(): CategoryCollectionReference {
     if (!this._rootCollections.category) {
-      this._rootCollections.category = new CategoriesCollectionReference(this._client, null);
+      this._rootCollections.category = new CategoryCollectionReference(this._client, null);
     }
     return this._rootCollections.category;
+  }
+
+  get productCategory(): ProductCategoryCollectionReference {
+    if (!this._rootCollections.productCategory) {
+      this._rootCollections.productCategory = new ProductCategoryCollectionReference(this._client, null);
+    }
+    return this._rootCollections.productCategory;
   }
 
   get priceLists(): PriceListCollectionReference {
