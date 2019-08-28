@@ -1,6 +1,7 @@
 import EcomClient from '../index';
 import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { QueryDocumentSnapshot, DocumentSnapshot } from './document';
+import { EcomError } from './error';
 
 export interface CategoriesDocumentData {
   path: string
@@ -11,6 +12,12 @@ export interface CategoriesDocumentData {
 interface SetCategoriesDocumentData {
   path: string
 };
+
+export interface SetCategoriesCollectionData {
+  segment: string
+  name: string
+  categories: SetCategoriesCollectionData[]
+}
 
 export class CategoriesCollectionReference extends CollectionReference {
   constructor(client: EcomClient, parent: DocumentReference | null) {
@@ -30,6 +37,23 @@ export class CategoriesCollectionReference extends CollectionReference {
     return new CategoriesQuerySnapshot([]);
   }
 
+  async set(data: SetCategoriesCollectionData): Promise<void> {
+    try {
+      const response = await this.client.put('/categories', data);
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status === 204) {
+        return;
+      }
+      throw Error('failed to update all categories');
+    } catch (err) {
+      throw err;
+    }
+  }
   // async link(): Promise<ProductsCategoriesDocumentReference> {
 
   // }
