@@ -1,6 +1,6 @@
 import EcomClient from '../index';
 import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
-import { QueryDocumentSnapshot, DocumentSnapshot } from './document';
+import { DocumentSnapshot } from './document';
 import { EcomError } from './error';
 
 export interface CategoryDocumentData {
@@ -25,21 +25,21 @@ export class CategoryCollectionReference extends CollectionReference {
   }
 
   doc(id: string): CategoryDocumentReference {
-    return new CategoryDocumentReference(this._client, id, this);
+    return new CategoryDocumentReference(this._ecom, id, this);
   }
 
   async add(product: any): Promise<CategoryDocumentReference> {
     console.log(product);
-    return new CategoryDocumentReference(this._client, '12345', this);
+    return new CategoryDocumentReference(this._ecom, '12345', this);
   }
 
   async get(): Promise<QuerySnapshot> {
-    return new CategoryQuerySnapshot([]);
+    return new QuerySnapshot(this, []);
   }
 
   async set(data: SetCategoryCollectionData): Promise<void> {
     try {
-      const response = await this._client.put('/categories', data);
+      const response = await this._ecom.put('/categories', data);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -78,8 +78,8 @@ export class CategoryDocumentReference extends DocumentReference {
 class CategoryDocumentSnapshot extends DocumentSnapshot {
 }
 
-class CategoryQuerySnapshot extends QuerySnapshot {
-  constructor(docs: Array<QueryDocumentSnapshot>) {
-   super(docs);
-  }
-}
+// class CategoryQuerySnapshot extends QuerySnapshot {
+//   constructor(docs: Array<QueryDocumentSnapshot>) {
+//    super(docs);
+//   }
+// }

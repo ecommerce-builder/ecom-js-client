@@ -1,5 +1,5 @@
 import EcomClient from '..';
-import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
+import { Query, CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { DocumentSnapshot, QueryDocumentSnapshot } from './document';
 import { Role } from './types';
 
@@ -28,16 +28,16 @@ export class UserCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : UserDocumentReference {
-    return new UserDocumentReference(this._client, id, this);
+    return new UserDocumentReference(this._ecom, id, this);
   }
 
   async add(user: NewUser): Promise<UserDocumentReference> {
     console.log(user);
-    return new UserDocumentReference(this._client, '12345', this);
+    return new UserDocumentReference(this._ecom, '12345', this);
   }
 
   async get() : Promise<QuerySnapshot> {
-    return new UserQuerySnapshot([]);
+    return new UserQuerySnapshot(this, []);
   }
 }
 
@@ -69,7 +69,7 @@ export class UserDocumentSnapshot extends DocumentSnapshot {
 }
 
 export class UserQuerySnapshot extends QuerySnapshot {
-  constructor(docs: Array<QueryDocumentSnapshot>) {
-   super(docs);
+  constructor(query: Query, docs: Array<QueryDocumentSnapshot>) {
+   super(query, docs);
   }
 }

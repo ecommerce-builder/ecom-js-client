@@ -1,7 +1,6 @@
 import EcomClient from '..';
-import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
+import { Query, CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { DocumentSnapshot, QueryDocumentSnapshot } from './document';
-import { ImageCollectionReference } from './image';
 import { EcomError } from './error';
 
 export interface ProductDocumentData {
@@ -24,11 +23,11 @@ export class ProductCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : ProductDocumentReference {
-    return new ProductDocumentReference(this._client, id, this);
+    return new ProductDocumentReference(this._ecom, id, this);
   }
 
   async add(product: SetProductDocumentData): Promise<ProductDocumentReference> {
-    let response = await this._client.post('/products', {
+    let response = await this._ecom.post('/products', {
       path: product.path,
       sku: product.sku,
       name: product.name
@@ -51,7 +50,7 @@ export class ProductCollectionReference extends CollectionReference {
       // };
 
       // const docSnap = new ProductDocumentSnapshot(data.id, snapshotData);
-      const docRef = new ProductDocumentReference(this._client, data.id, this);
+      const docRef = new ProductDocumentReference(this._ecom, data.id, this);
       return docRef;
     }
 
@@ -60,7 +59,7 @@ export class ProductCollectionReference extends CollectionReference {
 
   async get(): Promise<QuerySnapshot> {
     try {
-      let response = await this._client.get('/products');
+      let response = await this._ecom.get('/products');
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -73,7 +72,7 @@ export class ProductCollectionReference extends CollectionReference {
 
         let docs: QueryDocumentSnapshot[] = [];
         list.forEach((product: any) => {
-          const docRef = new ProductDocumentReference(this._client, product.id, this);
+          const docRef = new ProductDocumentReference(this._ecom, product.id, this);
 
           const productDocumentData: ProductDocumentData = {
             path: product.path,
@@ -87,7 +86,7 @@ export class ProductCollectionReference extends CollectionReference {
 
           docs.push(queryDocumentSnapshot);
         });
-        return new ProductQuerySnapshot(docs);
+        return new ProductQuerySnapshot(this, docs);
       }
       throw Error('failed to get product collection');
     } catch (err) {
@@ -97,23 +96,13 @@ export class ProductCollectionReference extends CollectionReference {
 }
 
 export class ProductDocumentReference extends DocumentReference {
-  private _images: ImageCollectionReference | undefined;
-
   constructor(client: EcomClient, id: string, parent: CollectionReference) {
     super(client, id, parent);
-    this._images = undefined;
-  }
-
-  get images(): ImageCollectionReference {
-    if (this._images === undefined) {
-      this._images = new ImageCollectionReference(this._client, this);
-    }
-    return this._images;
   }
 
   async set(product: SetProductDocumentData): Promise<void> {
     try {
-      const response = await this._client.put(`/products/${this.id}`, {
+      const response = await this._ecom.put(`/products/${this.id}`, {
         path: product.path,
         sku: product.sku,
         name: product.name
@@ -144,7 +133,7 @@ export class ProductDocumentReference extends DocumentReference {
   }
   async get(): Promise<ProductDocumentSnapshot> {
     try {
-      const response = await this._client.get(`/products/${this.id}`);
+      const response = await this._ecom.get(`/products/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -170,7 +159,7 @@ export class ProductDocumentReference extends DocumentReference {
   }
   async delete(): Promise<void> {
     try {
-      const response = await this._client.delete(`/products/${this.id}`);
+      const response = await this._ecom.delete(`/products/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -187,14 +176,11 @@ export class ProductDocumentReference extends DocumentReference {
   }
 }
 
-export class ProductDocumentSnapshot extends DocumentSnapshot {
-
-}
-
+export class ProductDocumentSnapshot extends DocumentSnapshot {}
 export class ProductQueryDocumentSnapshot extends ProductDocumentSnapshot {}
 
 export class ProductQuerySnapshot extends QuerySnapshot {
-  constructor(docs: QueryDocumentSnapshot[]) {
-   super(docs);
+  constructor(query: Query, docs: QueryDocumentSnapshot[]) {
+   super(query, docs);
   }
 }

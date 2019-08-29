@@ -1,5 +1,5 @@
 import EcomClient from '..';
-import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
+import { Query, CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { DocumentSnapshot, QueryDocumentSnapshot } from './document';
 import { EcomError } from './error';
 import { ProductDocumentReference } from './product';
@@ -16,6 +16,12 @@ type ImageDocumentData = {
   modified: Date
 }
 
+export interface AddImageDocumentData {
+  productId: string
+  path: string
+}
+
+
 export interface SetImageDocumentData {
   path: string
 }
@@ -26,29 +32,17 @@ export class ImageCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : ImageDocumentReference {
-    return new ImageDocumentReference(this._client, id, this);
+    return new ImageDocumentReference(this._ecom, id, this);
   }
 
   /**
-   * The `.add()` method can only be called on the `.products` collection.
-   *
    * @param image the new image to add
    */
-  async add(image: SetImageDocumentData): Promise<ImageDocumentReference> {
-    if (this.parent === null) {
-      throw Error('.add cannot be called on a root collection. Use products.doc(\'<id>\').images.add() instead');
-    }
+  async add(image: AddImageDocumentData): Promise<ImageDocumentReference> {
+   try {
+     const productId = image.productId;
 
-    // if (this.parent !instanceof ProductDocumentReference) {
-    //   throw Error('.add can only be called on a product collection')
-    // }
-
-
-    const productId = this.parent.id;
-
-    if (this.parent)
-    try {
-      let response = await this._client.post(`/products/${productId}/images`, {
+      let response = await this._ecom.post(`/products/${productId}/images`, {
         path: image.path
       });
 
@@ -73,7 +67,7 @@ export class ImageCollectionReference extends CollectionReference {
           modified: new Date(data.modified)
         }
 
-        const docRef = new ImageDocumentReference(this._client, data.id, this);
+        const docRef = new ImageDocumentReference(this._ecom, data.id, this);
         const snapRef = new ImageDocumentSnapshot(docRef, snapshotData);
         console.dir(snapRef);
 
@@ -83,11 +77,11 @@ export class ImageCollectionReference extends CollectionReference {
       throw err;
     }
     console.log(image);
-    return new ImageDocumentReference(this._client, '12345', this);
+    return new ImageDocumentReference(this._ecom, '12345', this);
   }
 
   async get() : Promise<QuerySnapshot> {
-    return new ImageQuerySnapshot([]);
+    return new ImageQuerySnapshot(this, []);
   }
 }
 
@@ -98,7 +92,7 @@ export class ImageDocumentReference extends DocumentReference {
     }
 
     try {
-      let response = await this._client.get(`/images/${this.id}`);
+      let response = await this._ecom.get(`/images/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -111,7 +105,7 @@ export class ImageDocumentReference extends DocumentReference {
         console.dir(data);
 
         const snapshotData: ImageDocumentData = {
-          productDocumentReference: new ProductDocumentReference(this._client, data.id, this._client.db.products),
+          productDocumentReference: new ProductDocumentReference(this._ecom, data.id, this._ecom.db.products),
           path: data.path,
           gsurl: data.gsurl,
           width: data.width,
@@ -137,7 +131,7 @@ export class ImageDocumentSnapshot extends DocumentSnapshot {
 }
 
 export class ImageQuerySnapshot extends QuerySnapshot {
-  constructor(docs: Array<QueryDocumentSnapshot>) {
-   super(docs);
+  constructor(query: Query, docs: Array<QueryDocumentSnapshot>) {
+   super(query, docs);
   }
 }

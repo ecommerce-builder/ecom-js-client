@@ -1,5 +1,5 @@
 import EcomClient from '../index';
-import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
+import { Query, CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { QueryDocumentSnapshot, DocumentSnapshot } from './document';
 import { EcomError } from './error';
 import { ProductDocumentReference } from './product';
@@ -7,7 +7,11 @@ import { CategoryDocumentReference } from './category';
 
 export interface ProductCategoryDocumentData {
   productId: string
+  productPath: string
+  productSKU: string
+  productName: string
   categoryId: string
+  categoryPath: string
   pri: number
   created: Date
   modified: Date
@@ -29,12 +33,12 @@ export class ProductCategoryCollectionReference extends CollectionReference {
   }
 
   doc(id: string): DocumentReference {
-    return new ProductCategoryDocumentReference(this._client, id, this);
+    return new ProductCategoryDocumentReference(this._ecom, id, this);
   }
 
   async add(assoc: SetProductCategoryDocumentData): Promise<DocumentReference> {
     try {
-      let response = await this._client.post('/products-categories', {
+      let response = await this._ecom.post('/products-categories', {
         product_id: assoc.productDocumentReference.id,
         category_id: assoc.categoryDocumentReference.id
       });
@@ -49,7 +53,11 @@ export class ProductCategoryCollectionReference extends CollectionReference {
 
         const snapshotData: ProductCategoryDocumentData = {
           productId: data.product_id,
+          productPath: data.product_path,
+          productSKU: data.product_sku,
+          productName: data.product_name,
           categoryId: data.category_id,
+          categoryPath: data.category_path,
           pri: data.pri,
           created: new Date(data.created),
           modified: new Date(data.modified)
@@ -59,17 +67,55 @@ export class ProductCategoryCollectionReference extends CollectionReference {
 
         console.dir(docSnap);
 
-        const docRef = new ProductCategoryDocumentReference(this._client, data.id, this);
+        const docRef = new ProductCategoryDocumentReference(this._ecom, data.id, this);
         return docRef;
       }
     } catch (err) {
       throw err;
     }
-    return new ProductCategoryDocumentReference(this._client, '12345', this);
+    return new ProductCategoryDocumentReference(this._ecom, '12345', this);
   }
 
   async get() : Promise<ProductCategoryQuerySnapshot> {
-    return new ProductCategoryQuerySnapshot([]);
+    try {
+      const response = await this._ecom.get('/products-categories');
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status === 200) {
+        let data = await response.json();
+        const list = data.data;
+
+        let docs: QueryDocumentSnapshot[] = [];
+        list.forEach((data: any) => {
+          const docRef = new ProductCategoryDocumentReference(this._ecom, data.id, this);
+
+          const documentData: ProductCategoryDocumentData = {
+            productId: data.product_id,
+            productPath: data.product_path,
+            productSKU: data.product_sku,
+            productName: data.product_name,
+            categoryId: data.category_id,
+            categoryPath: data.category_path,
+            pri: data.pri,
+            created: new Date(data.created),
+            modified: new Date(data.modified)
+          };
+
+          let queryDocumentSnapshot = new ProductCategoryQueryDocumentSnapshot(docRef, documentData);
+
+          docs.push(queryDocumentSnapshot);
+        });
+        return new ProductCategoryQuerySnapshot(this, docs);
+      }
+      throw Error('failed to get product collection');
+    } catch (err) {
+      throw err;
+    }
+    return new ProductCategoryQuerySnapshot(this, []);
   }
 }
 
@@ -80,7 +126,7 @@ export class ProductCategoryDocumentReference extends DocumentReference {
 
   async get(): Promise<ProductCategoryDocumentSnapshot> {
     try {
-      const response = await this._client.get(`/products-categories/${this.id}`);
+      const response = await this._ecom.get(`/products-categories/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -92,7 +138,11 @@ export class ProductCategoryDocumentReference extends DocumentReference {
 
         const snapshotData: ProductCategoryDocumentData = {
           productId: data.product_id,
+          productPath: data.product_path,
+          productSKU: data.product_sku,
+          productName: data.product_name,
           categoryId: data.category_id,
+          categoryPath: data.category_path,
           pri: data.pri,
           created: new Date(data.created),
           modified: new Date(data.modified)
@@ -109,7 +159,7 @@ export class ProductCategoryDocumentReference extends DocumentReference {
 
   async delete(): Promise<void> {
     try {
-      const response = await this._client.delete(`/products-categories/${this.id}`);
+      const response = await this._ecom.delete(`/products-categories/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -126,13 +176,11 @@ export class ProductCategoryDocumentReference extends DocumentReference {
   }
 }
 
-export class ProductCategoryDocumentSnapshot extends DocumentSnapshot {
-
-}
+export class ProductCategoryDocumentSnapshot extends DocumentSnapshot {}
+export class ProductCategoryQueryDocumentSnapshot extends ProductCategoryDocumentSnapshot {}
 
 export class ProductCategoryQuerySnapshot extends QuerySnapshot {
-  constructor(docs: Array<QueryDocumentSnapshot>) {
-   super(docs);
-
+  constructor(query: Query, docs: Array<QueryDocumentSnapshot>) {
+   super(query, docs);
   }
 }

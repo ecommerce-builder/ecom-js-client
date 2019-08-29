@@ -13,22 +13,22 @@ export interface AuthUser {
 }
 
 export class Auth {
-  readonly _client: EcomClient;
+  readonly _ecom: EcomClient;
   private _authUser: AuthUser | null;
   private _user: User | null;
 
-  constructor(client: EcomClient) {
-    this._client = client;
+  constructor(ecom: EcomClient) {
+    this._ecom = ecom;
     this._authUser = null;
     this._user = null
     // Initialize Firebase
-    firebase.initializeApp(this._client.firebaseConfig);
+    firebase.initializeApp(this._ecom.firebaseConfig);
 
     if (firebase.auth) {
       firebase.auth().onIdTokenChanged(async (user) => {
         if (user) {
            // record the new token internally
-          this._client._token = await user.getIdToken();
+          this._ecom._token = await user.getIdToken();
         }
       });
 
@@ -71,7 +71,7 @@ export class Auth {
    */
   async createUser(email: string, password: string, firstname: string, lastname: string) : Promise<User | null> {
     try {
-      let res = await this._client.post('/users', {
+      let res = await this._ecom.post('/users', {
         email,
         password,
         firstname,
@@ -112,7 +112,7 @@ export class Auth {
    */
   async signInWithDeveloperKey(developerKey: string): Promise<AuthUser> {
     try {
-      let response = await this._client.post('/signin-with-devkey', {
+      let response = await this._ecom.post('/signin-with-devkey', {
         key: developerKey
       });
 
@@ -130,7 +130,7 @@ export class Auth {
           if (userCredential) {
             const user = userCredential.user;
             if (user) {
-              this._client._token = await user.getIdToken();
+              this._ecom._token = await user.getIdToken();
 
               const authUser: AuthUser = {
                 displayName: user.displayName,
@@ -182,7 +182,7 @@ export class Auth {
         if (userCredential) {
           const user = userCredential.user;
           if (user) {
-            this._client._token = await user.getIdToken();
+            this._ecom._token = await user.getIdToken();
 
             const authUser: AuthUser = {
               displayName: user.displayName,

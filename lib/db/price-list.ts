@@ -1,5 +1,5 @@
 import EcomClient from '../index';
-import { CollectionReference, DocumentReference, QuerySnapshot } from './reference';
+import { Query, CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { QueryDocumentSnapshot, DocumentSnapshot } from './document';
 import { EcomError } from './error';
 
@@ -29,12 +29,12 @@ export class PriceListCollectionReference extends CollectionReference {
   }
 
   doc(id: string) : PriceListDocumentReference {
-    return new PriceListDocumentReference(this._client, id, this);
+    return new PriceListDocumentReference(this._ecom, id, this);
   }
 
   async add(data: SetPriceListDocumentData): Promise<DocumentReference | undefined> {
     try {
-      let response = await this._client.post('/price-lists', {
+      let response = await this._ecom.post('/price-lists', {
         price_list_code: data.priceListCode,
         currency_code: data.currencyCode,
         strategy: data.strategy,
@@ -66,7 +66,7 @@ export class PriceListCollectionReference extends CollectionReference {
 
         console.dir(snapRef);
 
-        const docRef = new PriceListDocumentReference(this._client, data.id, this);
+        const docRef = new PriceListDocumentReference(this._ecom, data.id, this);
         return docRef;
       }
       return undefined;
@@ -76,14 +76,14 @@ export class PriceListCollectionReference extends CollectionReference {
   }
 
   async get() : Promise<PriceListQuerySnapshot> {
-    return new PriceListQuerySnapshot([]);
+    return new PriceListQuerySnapshot(this, []);
   }
 }
 
 export class PriceListDocumentReference extends DocumentReference {
   async set(data: SetPriceListDocumentData): Promise<void> {
     try {
-      const response = await this._client.put(`/price-lists/${this.id}`, {
+      const response = await this._ecom.put(`/price-lists/${this.id}`, {
         price_list_code: data.priceListCode,
         currency_code: data.currencyCode,
         strategy: data.strategy,
@@ -122,7 +122,7 @@ export class PriceListDocumentReference extends DocumentReference {
 
   async get(): Promise<PriceListDocumentSnapshot> {
     try {
-      const response = await this._client.get(`/price-lists/${this.id}`);
+      const response = await this._ecom.get(`/price-lists/${this.id}`);
 
       if (response.status >= 400) {
         let data = await response.json();
@@ -160,8 +160,8 @@ export class PriceListDocumentSnapshot extends DocumentSnapshot {
 }
 
 export class PriceListQuerySnapshot extends QuerySnapshot {
-  constructor(docs: Array<QueryDocumentSnapshot>) {
-   super(docs);
+  constructor(query: Query, docs: QueryDocumentSnapshot[]) {
+   super(query, docs);
 
   }
 }

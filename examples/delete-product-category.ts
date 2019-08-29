@@ -13,7 +13,7 @@ const client = EcomClient.initApp({
     const authUser = await client.auth.signInWithDeveloperKey(process.env.DEVKEY);
 
 
-    const productCategoryDocRef = client.db.productCategory.doc('5491dca3-bfcc-47b1-933f-ed1f3b49dff2');
+    const productCategoryDocRef = client.db.productCategory.doc('3a6751d1-fbbd-4f70-a206-a23d10003681');
 
     await productCategoryDocRef.delete();
 

@@ -2,15 +2,15 @@ import { DocumentSnapshot, QueryDocumentSnapshot } from './document';
 import EcomClient from '../index';
 
 export abstract class DocumentReference {
-  protected _client: EcomClient;
+  protected _ecom: EcomClient;
   private _id: string;
   private _parent: CollectionReference
 
   /**
    * @hideconstructor
    */
-  constructor(client: EcomClient, id: string, parent: CollectionReference) {
-    this._client = client;
+  constructor(ecom: EcomClient, id: string, parent: CollectionReference) {
+    this._ecom = ecom;
     this._id = id;
     this._parent = parent;
   }
@@ -27,20 +27,59 @@ export abstract class DocumentReference {
   abstract delete(): Promise<void>
 }
 
-export abstract class CollectionReference {
-  protected _client: EcomClient;
+export class Query {
+  /**
+   * @hideconstructor
+   */
+  constructor(protected readonly _ecom: EcomClient) {
+  }
+
+  get ecom(): EcomClient {
+    return this._ecom;
+  }
+
+  /**
+   * Returns a new Query that constrains the value of a Document property.
+   */
+  where(field: string, opStr: string, value: unknown): Query {
+    console.log(`field=${field}`);
+    console.log(`opStr=${opStr}`);
+    console.log(`value=${value}`);
+
+    return new Query(this._ecom);
+  }
+
+  /**
+   * Executes the query and returns the results as a
+   * [QuerySnapshot]{@link QuerySnapshot}.
+   *
+   * @returns {Promise.<QuerySnapshot>} A Promise that resolves with the results
+   * of the Query.
+   */
+  async get(): Promise<QuerySnapshot> {
+    return new QuerySnapshot(this, []);
+  }
+}
+
+/**
+ * @class
+ * @extends Query
+ */
+export abstract class CollectionReference extends Query {
   private _parent: DocumentReference | null;
 
   /**
    * @hideconstructor
+   *
+   * @param ecom The Ecom client.
    */
-  constructor(client: EcomClient, parent: DocumentReference | null) {
-    this._client = client;
+  constructor(ecom: EcomClient, parent: DocumentReference | null) {
+    super(ecom);
     this._parent = parent;
   }
 
   // get client() : EcomClient {
-  //   return this._client!;
+  //   return this._ecom!;
   // }
 
   /**
@@ -60,30 +99,6 @@ export abstract class CollectionReference {
   // abstract orderBy(orderBy: string, orderDirection?: OrderByDirection): Query
 }
 
-enum OrderByDirection {
-  Desc = 'desc',
-  Asc = 'asc'
-}
-
-export abstract class Query {
-  readonly parent: CollectionReference;
-  orderBy: string;
-  orderDirection: OrderByDirection;
-  _limit: number;
-
-  constructor(parent: CollectionReference, orderBy: string, orderDirection: OrderByDirection | undefined, limit: number) {
-    this.parent = parent;
-    this.orderBy = orderBy
-    this.orderDirection = orderDirection || OrderByDirection.Asc;
-    this._limit = limit;
-  }
-
-
-  abstract async get(): Promise<QuerySnapshot>
-
-  abstract limit(limit: number): Query
-}
-
 /**
  * A QuerySnapshot contains zero or more DocumentSnapshot objects representing
  * the results of a query. The documents can be accessed as an array via the
@@ -91,11 +106,10 @@ export abstract class Query {
  * documents can be determined via the empty and size properties.
  */
 export class QuerySnapshot {
-  private _docs: QueryDocumentSnapshot[];
-
-  constructor(docs: QueryDocumentSnapshot[]) {
-    this._docs = docs;
-  }
+  constructor(
+    protected readonly _query: Query,
+    private _docs: QueryDocumentSnapshot[]
+  ) {}
 
   /**
    * @readonly

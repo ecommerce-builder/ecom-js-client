@@ -13,13 +13,14 @@ const client = EcomClient.initApp({
     const authUser = await client.auth.signInWithDeveloperKey(process.env.DEVKEY);
 
 
-    const categoryDocRef = client.db.categories.doc('3d94663c-73cc-4615-9857-eaff195e6260');
-    const productDocRef = client.db.products.doc('0b829479-b970-47da-8830-051d22d312c5');
+    const querySnap = await client.db.productCategory.get();
 
-    const productCategoryDocRef = await client.db.productCategory.add({
-      categoryDocumentReference: categoryDocRef,
-      productDocumentReference: productDocRef
+    const docs = querySnap.docs;
+    docs.forEach(docSnap => {
+      console.dir(docSnap.id);
+      console.dir(docSnap.data());
     });
+
   } catch (err) {
     console.error(err.status);
     console.error(err.code);

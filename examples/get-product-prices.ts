@@ -5,21 +5,21 @@ import firebaseConfig from './firebase-config';
 const client = EcomClient.initApp({
   endpoint: process.env.ENDPOINT,
   firebaseConfig: firebaseConfig,
-  debug: false
+  debug: true
 });
 
 (async () => {
   try {
     const authUser = await client.auth.signInWithDeveloperKey(process.env.DEVKEY);
 
+    const querySnapshot = await client.db.products
+      .doc('7e2c2747-039e-4e30-ad83-01b528c6cf2b')
+      .prices
+      .where('price_list_id', '==', '7caa3500-d218-496e-957f-67a187872505').get();
 
-    const categoryDocRef = client.db.categories.doc('3d94663c-73cc-4615-9857-eaff195e6260');
-    const productDocRef = client.db.products.doc('0b829479-b970-47da-8830-051d22d312c5');
+    )
 
-    const productCategoryDocRef = await client.db.productCategory.add({
-      categoryDocumentReference: categoryDocRef,
-      productDocumentReference: productDocRef
-    });
+
   } catch (err) {
     console.error(err.status);
     console.error(err.code);
