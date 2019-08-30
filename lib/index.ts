@@ -9,6 +9,7 @@ import { Address } from './address';
 import { Order } from './order';
 
 import { FirebaseOptions } from '@firebase/app-types';
+import { EcomError } from './db/error';
 
 const ECOM_FIREBASE_KEY_SERVER_URL = 'https://ecom-key-server.firebaseapp.com';
 
@@ -29,13 +30,14 @@ export class EcomClient {
   catalog: Catalog | null;
   customer: Customer | null;
   cart: Cart | null;
-  auth: Auth;
+  auth: Auth | undefined;
   db: Db;
   fetch: any;
   dbPromise: any;
   debug: boolean;
 
   constructor(opts: EcomClientOptions) {
+    console.log('in constructor');
     this.endpoint = opts.endpoint;
     this.firebaseConfig = opts.firebaseConfig;
     this._token = undefined;
@@ -44,7 +46,7 @@ export class EcomClient {
     this.customer = null;
     this.cart = null;
     this.db = new Db(this);
-    this.auth = new Auth(this);
+    this.auth = undefined;
     this.dbPromise = undefined;
     this.fetch = opts.fetch || fetch;
     this.debug = opts.debug || false;
@@ -54,8 +56,34 @@ export class EcomClient {
       return 'ECOM_VERSION';
   }
 
-  static initApp(opts: EcomClientOptions): EcomClient {
-    return new EcomClient(opts);
+  static async initApp(opts: EcomClientOptions): Promise<EcomClient> {
+    try {
+      const client = new EcomClient(opts);
+      console.log('finished constructor');
+
+      const fetchOpts : any  = {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+      };
+      const response = await client.fetch(`${client.endpoint}/config`, fetchOpts);
+
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status == 200) {
+        const data = await response.json();
+        client.firebaseConfig = data.firebaseConfig;
+        client.auth = new Auth(client);
+      }
+      return client;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async init(config: { uid: string; } ) {
