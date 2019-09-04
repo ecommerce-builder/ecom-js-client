@@ -1,4 +1,10 @@
 # CHANGELOG
+## 13.0.0 (Wed 4 Sep 2019)
++ Async static initialisation using EcomClient.initApp({...});
++ New low level db layer using collection.doc notation.
++ Firebase auth is built into the library and provides its own wrappers.
++ Example Typescript snippets.
+
 ## 12.2.0 (Wed 21 Aug 2019)
 + Price list create, read, updated, delete and list methods.
 
