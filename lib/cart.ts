@@ -1,7 +1,69 @@
 import EcomClient from './index';
-import CartItem from './cart-item';
 
-class Cart {
+export class CartItem {
+  client: EcomClient;
+  sku: string;
+  qty: number;
+  unitPrice: number;
+  created: Date;
+  modified: Date;
+
+  constructor(client: EcomClient, sku: string, qty: number, unitPrice: number, created: Date, modified: Date) {
+    this.client = client;
+    this.sku = sku;
+    this.qty = qty;
+    this.unitPrice = unitPrice;
+    this.created = created;
+    this.modified = modified;
+  }
+
+  async updateQty(qty: number) {
+    try {
+      if (!this.client.cart) {
+        throw Error('No cart object');
+      }
+      let res = await this.client.patch(`${this.client.endpoint}/carts/${this.client.cart.id}/items/${this.sku}`, { qty });
+      if (res.status === 200) {
+        let data = await res.json();
+        delete data.id;
+        data.created = new Date(data.created);
+        data.modified = new Date(data.modified);
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  async delete() {
+    try {
+      if (!this.client.cart) {
+        throw Error('No cart object');
+      }
+      let res = await this.client.delete(`${this.client.endpoint}/carts/${this.client.cart.id}/items/${this.sku}`);
+      if (res.status >= 400) {
+        let data = await res.json();
+        let e = Error(data.message)
+        throw e;
+      }
+
+      if (res.status === 204) {
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+}
+
+export class Cart {
   client: EcomClient;
   id: string;
   items: CartItem[]
@@ -23,7 +85,7 @@ class Cart {
 
     let items: CartItem[] = [];
     data.items.forEach((item: {sku: string; name: string; qty: number; unit_price: number; created: string, modified: string }) => {
-      let i = new CartItem(this.client, item.sku, item.name, item.qty, item.unit_price, new Date(item.created), new Date(item.modified));
+      let i = new CartItem(this.client, item.sku, item.qty, item.unit_price, new Date(item.created), new Date(item.modified));
       items.push(i);
     });
     this.items = items;
@@ -70,7 +132,7 @@ class Cart {
       }
 
       let data = await res.json();
-      const cartItem = new CartItem(this.client, data.sku, data.name, data.qty, data.unit_price, new Date(data.created), new Date(data.modified));
+      const cartItem = new CartItem(this.client, data.sku, data.qty, data.unit_price, new Date(data.created), new Date(data.modified));
 
       this.items.push(cartItem);
     } catch (err) {
@@ -99,5 +161,3 @@ class Cart {
     }
   }
 }
-
-export default Cart;

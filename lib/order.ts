@@ -10,7 +10,7 @@ type orderAddress = {
   country: string
 };
 
-class Order {
+export class Order {
   client: EcomClient;
   id: string;
   status: string;
@@ -35,5 +35,3 @@ class Order {
     this.modified = modified;
   }
 }
-
-export default Order;

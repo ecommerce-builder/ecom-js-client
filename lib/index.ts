@@ -1,80 +1,116 @@
-import Cart from './cart';
-import Customer from './customer';
-import Catalog from './catalog';
-import Address from './address';
-import Order from './order';
-import PriceList from './price-list';
-import EcomError from './error';
-
-import { openDB } from 'idb';
+import { Cart } from './cart';
+import { Customer } from './customer';
+import { CategoryTree } from './category-tree';
+import { Db } from './db';
+// import { openDB } from 'idb';
+import fetch from 'cross-fetch';
+import { Auth } from './auth';
+// import { Product } from './product';
+import { Address } from './address';
+import { Order } from './order';
+import { EcomError } from './db/error';
 
 const ECOM_FIREBASE_KEY_SERVER_URL = 'https://ecom-key-server.firebaseapp.com';
 
-type ecomClientOptions = {
-  endpoint: string
-  token: string
-  customerId: string
-  imageBaseURL: string
-  keyServerUrl?: string
+
+export interface EcomClientOptions {
+  endpoint: string,
+  imageBaseURL?: string
+  debug?: boolean
+  fetch?: any
 };
 
-class EcomClient {
+export class EcomClient {
   endpoint: string;
-  token: string;
-  customerId: string;
+  _token: string | undefined;
   imageBaseURL: string;
-  catalog: Catalog | null;
+  categoryTree: CategoryTree | undefined;
   customer: Customer | null;
   cart: Cart | null;
-  keyServerUrl: string | undefined;
+  auth: Auth | undefined;
+  db: Db;
+  fetch: any;
   dbPromise: any;
   debug: boolean;
 
-  constructor(opts: ecomClientOptions) {
+  constructor(opts: EcomClientOptions) {
     this.endpoint = opts.endpoint;
-    this.token = opts.token;
-    this.customerId = opts.customerId || '';
+    this._token = undefined;
     this.imageBaseURL = opts.imageBaseURL || '';
-    this.catalog = null;
+    this.categoryTree = undefined;
     this.customer = null;
     this.cart = null;
-    this.keyServerUrl = opts.keyServerUrl || ECOM_FIREBASE_KEY_SERVER_URL;
+    this.db = new Db(this);
+    this.auth = undefined;
     this.dbPromise = undefined;
-    this.debug = false;
+    this.fetch = opts.fetch || fetch;
+    this.debug = opts.debug || false;
   }
 
   static version() {
       return 'ECOM_VERSION';
   }
 
-  async init(config: { uid: string; } ) {
-    this.dbPromise = await openDB('ecomdb', 1, {
-      upgrade(db : any) {
-        if (!db.objectStoreNames.contains('carts')) {
-          db.createObjectStore('carts', {
-            keyPath: 'id',
-            autoIncrement: false
-          });
-        }
-
-        if (!db.objectStoreNames.contains('session')) {
-          db.createObjectStore('session', {
-            keyPath: 'name',
-            autoIncrement: false
-          });
-        }
+  static async initApp(opts: EcomClientOptions): Promise<EcomClient> {
+    try {
+      if (!opts.endpoint) {
+        throw new Error('endpoint property must be set');
       }
-    });
-    await this.dbPromise.put('session', { name: 'currentUser', uid: config.uid });
 
-    // load the catalog
-    const catalog = this.createCatalog();
-    await catalog.load(true);
+      const client = new EcomClient(opts);
+      const fetchOpts : any  = {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+      };
+      const response = await client.fetch(`${client.endpoint}/config`, fetchOpts);
 
-    // If no cart has been created, then create one.
-    const cart = await this.getCart();
-    if (!cart) {
-      await this.createCart();
+      if (response.status >= 400) {
+        let data = await response.json();
+        throw new EcomError(data.status, data.code, data.message);
+      }
+
+      if (response.status == 200) {
+        const data = await response.json();
+        client.auth = new Auth(client, data.firebaseConfig);
+      }
+
+      // client.dbPromise = await openDB('ecomdb', 1, {
+      //   upgrade(db : any) {
+      //     if (!db.objectStoreNames.contains('carts')) {
+      //       db.createObjectStore('carts', {
+      //         keyPath: 'id',
+      //         autoIncrement: false
+      //       });
+      //     }
+
+      //     if (!db.objectStoreNames.contains('session')) {
+      //       db.createObjectStore('session', {
+      //         keyPath: 'name',
+      //         autoIncrement: false
+      //       });
+      //     }
+      //   }
+      // });
+      // await client.dbPromise.put('session', {
+      //   name: 'currentUser',
+      //   uid: config.uid });
+
+      // load the catalog
+      // const catalog = client.getCategoryTree();
+      // await catalog.load(true);
+
+      // If no cart has been created, then create one.
+      // const cart = await client.getCart();
+      // if (!cart) {
+      //   await client.createCart();
+      // }
+
+      return client;
+    } catch (err) {
+      throw err;
     }
   }
 
@@ -144,11 +180,7 @@ class EcomClient {
   }
 
   setJWT(token: string) : void {
-    this.token = token;
-  }
-
-  setCustomerId(id: string) : void {
-    this.customerId = id;
+    this._token = token;
   }
 
   setImageBaseURL(url: string) : void {
@@ -159,16 +191,12 @@ class EcomClient {
     return this.imageBaseURL;
   }
 
-  getCustomerId() : string {
-    return this.customerId;
-  }
-
   async get(url: string) {
     return this.do(url, 'GET', null);
   }
 
-  async post(url: string, body: object | null) : Promise<Response> {
-    return this.do(url, 'POST', body);
+  async post(url: string, body: object | null, noAuth?: boolean) : Promise<Response> {
+    return this.do(url, 'POST', body, noAuth);
   }
 
   async put(url: string, body: object | null) : Promise<Response> {
@@ -183,12 +211,12 @@ class EcomClient {
     return this.do(url, 'DELETE', null);
   }
 
-  async do(url: string, method: string, body: object | null) : Promise<Response> {
+  async do(url: string, method: string, body: object | null, noAuth?: boolean) : Promise<Response> {
     let opts : any  = {
       method,
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${this.token}`,
+        'Authorization': noAuth ? '' : `Bearer ${this._token}`,
       },
       mode: 'cors',
     };
@@ -201,24 +229,21 @@ class EcomClient {
       opts.body = JSON.stringify(body);
       opts.headers['Content-Type'] = 'application/json';
     }
-    return await fetch(url, opts);
+    if (this.debug) {
+      console.log(`fetch url=${url}`);
+      console.dir(opts);
+    }
+    return await this.fetch(`${this.endpoint}${url}`, opts);
   }
 
+  getCategoryTree(): CategoryTree {
+    if (!this.categoryTree) {
+      this.categoryTree = new CategoryTree(this);
+    }
+    return this.categoryTree;
+ }
 
-  /**
-   * Create a new Catalog
-   *
-   */
-  createCatalog() : Catalog {
-    this.catalog = new Catalog(this);
-    return this.catalog;
-  }
-
-  getCatalog() : Catalog | null {
-    return this.catalog;
-  }
-
-  async createCart() : Promise<Cart> {
+ async createCart() : Promise<Cart> {
     try {
       let res = await this.post(`${this.endpoint}/carts`, null);
       if (res.status >= 400) {
@@ -250,6 +275,10 @@ class EcomClient {
     }
   }
 
+  // async getProduct(): Promise<Product> {
+
+  // }
+
   async getCart() : Promise<Cart | null> {
     if (this.cart) {
       await this.cart.getItems();
@@ -272,155 +301,6 @@ class EcomClient {
     }
     return null;
   }
-
-  /**
-   * Create a new customer
-   * @param {string} email
-   * @param {string} password
-   * @param {string} firstname
-   * @param {string} lastname
-   * @returns {object|null}
-   *
-   */
-  async createCustomer(email: string, password: string, firstname: string, lastname: string) : Promise<Customer | null> {
-    try {
-      let res = await this.post(`${this.endpoint}/customers`, {
-        email,
-        password,
-        firstname,
-        lastname,
-      });
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = Error(data.message);
-        throw e;
-      }
-
-      if (res.status === 201) {
-        let data = await res.json();
-        const customer = new Customer(
-          this,
-          data.id,
-          data.uid,
-          data.email,
-          data.firstname,
-          data.lastname,
-          new Date(data.created),
-          new Date(data.modified),
-        );
-        this.customer = customer;
-        return customer;
-      }
-
-      return null;
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  }
-
-  async createPriceList(priceListCode: string, currencyCode: string, strategy: string, incTax: boolean, name: string, description: string) : Promise<PriceList | undefined> {
-    try {
-      type createPriceListRequestBody = {
-        price_list_code: string
-        currency_code: string
-        readonly strategy: string
-        inc_tax: boolean
-        name: string
-        description: string
-      }
-
-      const requestBody : createPriceListRequestBody = {
-        price_list_code: priceListCode,
-        currency_code: currencyCode,
-        strategy: strategy,
-        inc_tax: incTax,
-        name: name,
-        description: description
-      };
-      let res = await this.post(`${this.endpoint}/price-lists`, requestBody);
-
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = new EcomError(data.status, data.code, data.message);
-        throw e;
-      }
-
-      if (res.status === 201) {
-        let data  = await res.json();
-
-        const priceList = new PriceList(this, data.id, data.price_list_code, data.currency_code,
-          data.strategy, data.inc_tax, data.name, data.description, new Date(data.created), new Date(data.modified));
-        return priceList;
-      }
-
-      return undefined;
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  async getPriceList(priceListId: string) : Promise<PriceList|undefined> {
-    try {
-      let res = await this.get(`${this.endpoint}/price-lists/${priceListId}`);
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = new EcomError(data.status, data.code, data.message);
-        throw e;
-      }
-
-      if (res.status === 200) {
-        let data  = await res.json();
-
-        const priceList = new PriceList(this, data.id, data.price_list_code, data.currency_code,
-          data.strategy, data.inc_tax, data.name, data.description, new Date(data.created), new Date(data.modified));
-        return priceList;
-      }
-      return undefined;
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  async getPriceLists() : Promise<Array<PriceList> | undefined> {
-    try {
-      let res = await this.get(`${this.endpoint}/price-lists`);
-
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = new EcomError(data.status, data.code, data.message);
-        throw e;
-      }
-
-      if (res.status === 200) {
-        type response = {
-          id: string
-          price_list_code: string
-          currency_code: string
-          strategy: string
-          inc_tax: boolean
-          name: string
-          description: string
-          created: string
-          modified: string
-        }
-
-        let data : { object: string, data: Array<response> } = await res.json();
-        if (data.object === 'list') {
-          let priceLists : Array<PriceList> = [];
-          for (const p of data.data) {
-            const pl = new PriceList(this, p.id, p.price_list_code, p.currency_code, p.strategy, p.inc_tax, p.name, p.description, new Date(p.created), new Date(p.modified));
-            priceLists.push(pl);
-          }
-          return priceLists;
-        }
-      }
-      return undefined;
-    } catch (err) {
-      throw err;
-    }
-  }
-
 
   async getCustomer(user: any) : Promise<Customer | null> {
     try {
@@ -489,4 +369,5 @@ class EcomClient {
   }
 }
 
+// tslint:disable-next-line:no-default-export
 export default EcomClient;

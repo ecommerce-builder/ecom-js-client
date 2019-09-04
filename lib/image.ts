@@ -12,10 +12,9 @@ import EcomClient from './index';
 //   modified: string | Date
 // };
 
-class Image {
+export class Image {
   client: EcomClient;
   id: string;
-  sku: string;
   path: string;
   gsurl: string;
   width: number;
@@ -24,11 +23,9 @@ class Image {
   created: Date;
   modified: Date;
 
-  constructor(client: EcomClient, id: string, sku: string,
-    path: string, gsurl: string, width: number, height: number, size: number, created: Date, modified: Date) {
+  constructor(client: EcomClient, id: string, path: string, gsurl: string, width: number, height: number, size: number, created: Date, modified: Date) {
     this.client = client;
     this.id = id;
-    this.sku = sku;
     this.path = path;
     this.gsurl = gsurl;
     this.width = width;
@@ -42,6 +39,3 @@ class Image {
     return `${this.client.getImageBaseURL()}/${this.path}`;
   }
 }
-
-
-export default Image;
