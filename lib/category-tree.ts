@@ -5,7 +5,7 @@ import { Category } from './category';
 type ProductMap = {[key: string]: Product};
 type ProductPathCategoriesMap = {[key: string]: Category[]};
 
-export class Catalog {
+export class CategoryTree {
   client: EcomClient;
   leafCategories: Category[];
   nonLeafCategories: Category[];
@@ -94,19 +94,19 @@ export class Catalog {
   }
 
   async load(forceLoad = false) {
-    function walkTree(catalog: Catalog, n: categoryData, c: Category) {
-      if (n.hasOwnProperty('products') && n.products && n.products.constructor === Array) {
-        n.products.forEach(function(p) {
-          c.appendProduct(new Product(catalog.client, p.id, p.path, p.sku, p.ean, p.name));
+    function walkTree(tree: CategoryTree, n: categoryDataResponse, c: Category) {
+      if (n.hasOwnProperty('products') && n.products && n.products.constructor === Object) {
+        n.products.data.forEach(function(p) {
+          c.appendProduct(new Product(tree.client, p.id, p.path, p.sku, p.name, new Date(p.created), new Date(p.modified)));
         });
       }
 
       if (n.hasOwnProperty('categories')) {
-        for (let i = 0; i < n.categories.length; i++) {
-          let newN = n.categories[i];
-          let newC = new Category(catalog.client, newN.segment, c.path + '/' + newN.segment, newN.name);
+        for (let i = 0; i < n.categories.data.length; i++) {
+          let newN = n.categories.data[i];
+          let newC = new Category(tree.client, newN.segment, c.path + '/' + newN.segment, newN.name);
           c.appendChild(newC);
-          walkTree(catalog, newN, newC);
+          walkTree(tree, newN, newC);tree
         }
       }
     }
@@ -119,12 +119,12 @@ export class Catalog {
     // Along the walk, build a map of product path to categories.
     // This is used to determine what category to use to generate
     // breadcrumbs whilst viewing an indivual product page.
-    function buildLeafAndNonLeaf(catalog: Catalog, c: Category) {
+    function buildLeafAndNonLeaf(tree: CategoryTree, c: Category) {
       if (c.isLeaf()) {
-        // if (!catalog.leafCategories) {
-        //   catalog.leafCategories = [];
+        // if (!tree.leafCategories) {
+        //   tree.leafCategories = [];
         // }
-        catalog.leafCategories.push(c);
+        tree.leafCategories.push(c);
 
         // Check if this leaf category has products. If
         // we have seen this product before skip it, otherwise
@@ -134,22 +134,22 @@ export class Catalog {
         for (let i = 0; i < products.length; i++) {
           let product = products[i];
 
-          if (!catalog.productPathCategoriesMap.hasOwnProperty(product.path)) {
-            catalog.productPathCategoriesMap[product.path] = [];
+          if (!tree.productPathCategoriesMap.hasOwnProperty(product.path)) {
+            tree.productPathCategoriesMap[product.path] = [];
           }
-          catalog.productPathCategoriesMap[product.path].push(c);
+          tree.productPathCategoriesMap[product.path].push(c);
 
-          if (!catalog.hasProduct.hasOwnProperty(product.sku)) {
-            catalog.hasProduct[product.sku] = true;
-            catalog.allProducts[product.path] = product;
+          if (!tree.hasProduct.hasOwnProperty(product.sku)) {
+            tree.hasProduct[product.sku] = true;
+            tree.allProducts[product.path] = product;
           }
         }
       } else {
-        catalog.nonLeafCategories.push(c);
+        tree.nonLeafCategories.push(c);
       }
 
       c.categories.forEach(i => {
-        buildLeafAndNonLeaf(catalog, i);
+        buildLeafAndNonLeaf(tree, i);
       });
     }
 
@@ -157,15 +157,10 @@ export class Catalog {
       if ((this.loaded) && (!forceLoad)) {
         return;
       }
-      let res = await this.client.get(`${this.client.endpoint}/categories`);
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = Error(data.message)
-        throw e;
-      }
 
-      if (res.status === 200) {
-        let tree: categoryData = await res.json();
+      const docSnap = await this.client.db.categoryTree.get();
+      if (docSnap.exists) {
+        const tree = docSnap.data();
         this.root = new Category(this.client, tree.segment, tree.segment, tree.name);
         walkTree(this, tree, this.root);
 
@@ -201,17 +196,24 @@ export class Catalog {
   }
 }
 
-type categoryProductData = {
+type categoryProductDataResponse = {
   id: string
   path: string
   sku: string
-  ean: string
   name: string
+  created: string
+  modified: string
 };
 
-type categoryData = {
+type categoryDataResponse = {
   segment: string
   name: string
-  categories: categoryData[]
-  products?: categoryProductData[]
+  categories: {
+    object: string
+    data: categoryDataResponse[]
+  },
+  products?: {
+    object: string
+    data: categoryProductDataResponse[]
+  }
 };

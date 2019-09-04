@@ -1,5 +1,9 @@
 import EcomClient from './index';
 import { Category } from './category';
+import { ProductInclude } from './db/product';
+import { Price } from './price';
+import { Image } from './image';
+
 // import { Price } from './price';
 
 // type imageData = {
@@ -22,36 +26,6 @@ import { Category } from './category';
 //   modified: string
 // }
 
-export class Image {
-  client: EcomClient;
-  id: string;
-  sku: string;
-  path: string;
-  gsurl: string;
-  width: number;
-  height: number;
-  size: number;
-  created: Date;
-  modified: Date;
-
-  constructor(client: EcomClient, id: string, sku: string,
-    path: string, gsurl: string, width: number, height: number, size: number, created: Date, modified: Date) {
-    this.client = client;
-    this.id = id;
-    this.sku = sku;
-    this.path = path;
-    this.gsurl = gsurl;
-    this.width = width;
-    this.height = height;
-    this.size = size;
-    this.created = created;
-    this.modified = modified;
-  }
-
-  getImageURL() : string {
-    return `${this.client.getImageBaseURL()}/${this.path}`;
-  }
-}
 
 
 // type productContent = {
@@ -60,67 +34,87 @@ export class Image {
 //   specification: string
 // };
 
-type productResponseData = {
-  id: string;
-  path: string,
-  sku: string,
-  ean: string,
-  name: string,
-  created: string | Date,
-  modified: string | Date
-};
-
-
 export class Product {
   client: EcomClient;
   id: string;
   path: string;
   sku: string;
-  ean: string | undefined;
+  prices: Price[] | undefined;
+  images: Image[] | undefined;
   name: string | undefined;
   created: Date | undefined;
   modified: Date | undefined;
 
-  constructor(client: EcomClient, id: string, path: string, sku: string, ean: string, name: string) {
+  constructor(client: EcomClient, id: string, path: string, sku: string, name: string, created: Date, modified: Date) {
     this.client = client;
     this.id = id;
     this.path = path;
     this.sku = sku;
-    this.ean = ean;
     this.name = name;
+    this.created = created;
+    this.modified = modified;
   }
 
   async load() {
     try {
-      let res = await this.client.get(`${this.client.endpoint}/products/${this.sku}`);
-      if (res.status >= 400) {
-        let data = await res.json();
-        let e = Error(data.message)
-        throw e;
-      }
+      const docSnap = await this.client.db.products
+        .doc(this.id)
+        .get(ProductInclude.Prices | ProductInclude.Images);
 
-      if (res.status === 200) {
-        let data: productResponseData = await res.json();
-        if (this.client.debug) {
-          console.dir(data);
-        }
-
-        this.id = data.id;
+      if (docSnap.exists) {
+        const data = docSnap.data();
         this.path = data.path;
         this.sku = data.sku;
-        this.ean = data.ean;
         this.name = data.name;
-        this.created = new Date(data.created);
-        this.modified = new Date(data.modified);
+        this.created = data.created;
+        this.modified = data.modified;
+
+        console.log('------------------------------------');
+        console.dir(data);
+        console.log('--------------------------------');
+
+        if (data.prices) {
+          const list: priceResponse[] = data.prices.data;
+
+          // console.dir(list);
+          // prices
+          this.prices = [];
+          interface priceResponse {
+            id: string;
+            product_id: string;
+            product_path: string;
+            product_sku: string;
+            price_list_id: string
+            price_list_code: string;
+            break: number;
+            unit_price: number;
+            created: string
+            modified: string
+          }
+
+          list.forEach(p => {
+            const price = new Price(p.id, p.product_id, p.product_path, p.product_sku, p.price_list_id, p.price_list_code, p.break, p.unit_price, new Date(p.created), new Date(p.modified))
+            if (this.prices) {
+              this.prices.push(price);
+            }
+          });
+
+          // images
+
+        }
       }
     } catch (err) {
       throw err;
     }
   }
 
-  categories() : Category[] {
-    if (this.client.catalog !== null) {
-      return this.client.catalog.productPathCategoriesMap[this.path];
+  categories(): Category[] {
+    if (!this.client.categoryTree) {
+      return [];
+    }
+
+    if (this.client.categoryTree !== null) {
+      return this.client.categoryTree.productPathCategoriesMap[this.path];
     }
     return [];
   }

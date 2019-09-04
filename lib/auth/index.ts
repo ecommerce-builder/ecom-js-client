@@ -3,6 +3,7 @@ import firebase from '@firebase/app';
 import '@firebase/auth';
 import { EcomError } from '../db/error';
 import { User } from '../db/types';
+import { FirebaseOptions } from '@firebase/app-types';
 
 export interface AuthUser {
   displayName: string | null
@@ -14,15 +15,17 @@ export interface AuthUser {
 
 export class Auth {
   readonly _ecom: EcomClient;
+  private _firebaseConfig: FirebaseOptions;
   private _authUser: AuthUser | null;
   private _user: User | null;
 
-  constructor(ecom: EcomClient) {
+  constructor(ecom: EcomClient, firebaseConfig: FirebaseOptions) {
     this._ecom = ecom;
+    this._firebaseConfig = firebaseConfig;
     this._authUser = null;
     this._user = null
     // Initialize Firebase
-    firebase.initializeApp(this._ecom.firebaseConfig);
+    firebase.initializeApp(this._firebaseConfig);
 
     if (firebase.auth) {
       firebase.auth().onIdTokenChanged(async (user) => {
@@ -102,6 +105,37 @@ export class Auth {
       return null;
     } catch (err) {
       console.error(err);
+      throw err;
+    }
+  }
+
+  async signInAnonymously(): Promise<AuthUser> {
+    if (!firebase.auth) {
+      throw Error('firebase.auth not defined');
+    }
+
+    try {
+      const userCredential = await firebase.auth().signInAnonymously();
+
+      if (userCredential) {
+        const user = userCredential.user;
+        if (user) {
+          this._ecom._token = await user.getIdToken();
+
+          const authUser: AuthUser = {
+            displayName: user.displayName,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            isAnonymous: user.isAnonymous,
+            uid: user.uid,
+          };
+          this._authUser = authUser;
+          return this._authUser;
+        }
+      }
+
+      throw Error('failed to signin anonymously');
+    } catch (err) {
       throw err;
     }
   }
@@ -211,6 +245,14 @@ export class Auth {
     } catch (err) {
       throw err;
     }
+  }
+
+  async onAuthStateChange(observer: (value: any) => void) {
+    if (!firebase.auth) {
+      throw new Error('failed to get firebase.auth');
+    }
+
+    firebase.auth().onAuthStateChanged(observer);
   }
 
   async sendPasswordResetEmail(email: string): Promise<void> {

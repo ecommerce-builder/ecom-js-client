@@ -1,4 +1,4 @@
-  import EcomClient from './index';
+import EcomClient from './index';
 
 export class CartItem {
   client: EcomClient;

@@ -2,11 +2,9 @@ import EcomClient from '..';
 import { Query, CollectionReference, DocumentReference, QuerySnapshot } from './reference';
 import { DocumentSnapshot, QueryDocumentSnapshot } from './document';
 import { EcomError } from './error';
-import { ProductDocumentReference } from './product';
 
-type ImageDocumentData = {
-  productDocumentReference: DocumentReference | null;
-
+export type ImageDocumentData = {
+  productId: string
   path: string
   gsurl: string
   width: number
@@ -57,7 +55,7 @@ export class ImageCollectionReference extends CollectionReference {
         console.dir(data);
 
         const snapshotData: ImageDocumentData = {
-          productDocumentReference: this.parent,
+          productId: data.product_id,
           path: data.path,
           gsurl: data.gsurl,
           width: data.width,
@@ -105,7 +103,7 @@ export class ImageDocumentReference extends DocumentReference {
         console.dir(data);
 
         const snapshotData: ImageDocumentData = {
-          productDocumentReference: new ProductDocumentReference(this._ecom, data.id, this._ecom.db.products),
+          productId: data.product_id,
           path: data.path,
           gsurl: data.gsurl,
           width: data.width,

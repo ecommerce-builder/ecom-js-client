@@ -1,14 +1,13 @@
 import { Cart } from './cart';
 import { Customer } from './customer';
-import { Catalog } from './catalog';
+import { CategoryTree } from './category-tree';
 import { Db } from './db';
-import { openDB } from 'idb';
+// import { openDB } from 'idb';
 import fetch from 'cross-fetch';
 import { Auth } from './auth';
+// import { Product } from './product';
 import { Address } from './address';
 import { Order } from './order';
-
-import { FirebaseOptions } from '@firebase/app-types';
 import { EcomError } from './db/error';
 
 const ECOM_FIREBASE_KEY_SERVER_URL = 'https://ecom-key-server.firebaseapp.com';
@@ -16,7 +15,6 @@ const ECOM_FIREBASE_KEY_SERVER_URL = 'https://ecom-key-server.firebaseapp.com';
 
 export interface EcomClientOptions {
   endpoint: string,
-  firebaseConfig: FirebaseOptions
   imageBaseURL?: string
   debug?: boolean
   fetch?: any
@@ -24,10 +22,9 @@ export interface EcomClientOptions {
 
 export class EcomClient {
   endpoint: string;
-  firebaseConfig: FirebaseOptions
   _token: string | undefined;
   imageBaseURL: string;
-  catalog: Catalog | null;
+  categoryTree: CategoryTree | undefined;
   customer: Customer | null;
   cart: Cart | null;
   auth: Auth | undefined;
@@ -37,12 +34,10 @@ export class EcomClient {
   debug: boolean;
 
   constructor(opts: EcomClientOptions) {
-    console.log('in constructor');
     this.endpoint = opts.endpoint;
-    this.firebaseConfig = opts.firebaseConfig;
     this._token = undefined;
     this.imageBaseURL = opts.imageBaseURL || '';
-    this.catalog = null;
+    this.categoryTree = undefined;
     this.customer = null;
     this.cart = null;
     this.db = new Db(this);
@@ -58,9 +53,11 @@ export class EcomClient {
 
   static async initApp(opts: EcomClientOptions): Promise<EcomClient> {
     try {
-      const client = new EcomClient(opts);
-      console.log('finished constructor');
+      if (!opts.endpoint) {
+        throw new Error('endpoint property must be set');
+      }
 
+      const client = new EcomClient(opts);
       const fetchOpts : any  = {
         method: 'GET',
         headers: {
@@ -77,43 +74,43 @@ export class EcomClient {
 
       if (response.status == 200) {
         const data = await response.json();
-        client.firebaseConfig = data.firebaseConfig;
-        client.auth = new Auth(client);
+        client.auth = new Auth(client, data.firebaseConfig);
       }
+
+      // client.dbPromise = await openDB('ecomdb', 1, {
+      //   upgrade(db : any) {
+      //     if (!db.objectStoreNames.contains('carts')) {
+      //       db.createObjectStore('carts', {
+      //         keyPath: 'id',
+      //         autoIncrement: false
+      //       });
+      //     }
+
+      //     if (!db.objectStoreNames.contains('session')) {
+      //       db.createObjectStore('session', {
+      //         keyPath: 'name',
+      //         autoIncrement: false
+      //       });
+      //     }
+      //   }
+      // });
+      // await client.dbPromise.put('session', {
+      //   name: 'currentUser',
+      //   uid: config.uid });
+
+      // load the catalog
+      // const catalog = client.getCategoryTree();
+      // await catalog.load(true);
+
+      // If no cart has been created, then create one.
+      // const cart = await client.getCart();
+      // if (!cart) {
+      //   await client.createCart();
+      // }
+
       return client;
     } catch (err) {
       throw err;
-    }
-  }
-
-  async init(config: { uid: string; } ) {
-    this.dbPromise = await openDB('ecomdb', 1, {
-      upgrade(db : any) {
-        if (!db.objectStoreNames.contains('carts')) {
-          db.createObjectStore('carts', {
-            keyPath: 'id',
-            autoIncrement: false
-          });
-        }
-
-        if (!db.objectStoreNames.contains('session')) {
-          db.createObjectStore('session', {
-            keyPath: 'name',
-            autoIncrement: false
-          });
-        }
-      }
-    });
-    await this.dbPromise.put('session', { name: 'currentUser', uid: config.uid });
-
-    // load the catalog
-    const catalog = this.createCatalog();
-    await catalog.load(true);
-
-    // If no cart has been created, then create one.
-    const cart = await this.getCart();
-    if (!cart) {
-      await this.createCart();
     }
   }
 
@@ -198,8 +195,8 @@ export class EcomClient {
     return this.do(url, 'GET', null);
   }
 
-  async post(url: string, body: object | null) : Promise<Response> {
-    return this.do(url, 'POST', body);
+  async post(url: string, body: object | null, noAuth?: boolean) : Promise<Response> {
+    return this.do(url, 'POST', body, noAuth);
   }
 
   async put(url: string, body: object | null) : Promise<Response> {
@@ -214,12 +211,12 @@ export class EcomClient {
     return this.do(url, 'DELETE', null);
   }
 
-  async do(url: string, method: string, body: object | null) : Promise<Response> {
+  async do(url: string, method: string, body: object | null, noAuth?: boolean) : Promise<Response> {
     let opts : any  = {
       method,
       headers: {
         'Accept': 'application/json',
-        'Authorization': `Bearer ${this._token}`,
+        'Authorization': noAuth ? '' : `Bearer ${this._token}`,
       },
       mode: 'cors',
     };
@@ -239,21 +236,14 @@ export class EcomClient {
     return await this.fetch(`${this.endpoint}${url}`, opts);
   }
 
+  getCategoryTree(): CategoryTree {
+    if (!this.categoryTree) {
+      this.categoryTree = new CategoryTree(this);
+    }
+    return this.categoryTree;
+ }
 
-  /**
-   * Create a new Catalog
-   *
-   */
-  createCatalog() : Catalog {
-    this.catalog = new Catalog(this);
-    return this.catalog;
-  }
-
-  getCatalog() : Catalog | null {
-    return this.catalog;
-  }
-
-  async createCart() : Promise<Cart> {
+ async createCart() : Promise<Cart> {
     try {
       let res = await this.post(`${this.endpoint}/carts`, null);
       if (res.status >= 400) {
@@ -284,6 +274,10 @@ export class EcomClient {
       throw err;
     }
   }
+
+  // async getProduct(): Promise<Product> {
+
+  // }
 
   async getCart() : Promise<Cart | null> {
     if (this.cart) {

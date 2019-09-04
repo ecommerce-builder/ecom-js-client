@@ -4,17 +4,19 @@ import { CategoryDocumentData } from './category';
 import { ProductCategoryDocumentData } from './product-category';
 import { PriceListDocumentData } from './price-list';
 import { UserDocumentData } from './user';
+import { DeveloperKeyDocumentData } from './developer-key';
 
 type DocSnapData =
   ProductDocumentData |
   PriceListDocumentData |
   CategoryDocumentData |
   ProductCategoryDocumentData |
-  UserDocumentData;
+  UserDocumentData |
+  DeveloperKeyDocumentData;
 
 export abstract class DocumentSnapshot {
   private _ref: DocumentReference;
-  private _data: DocSnapData | undefined = undefined;
+  protected _data: DocSnapData | undefined = undefined;
 
   /**
    * @hideconstructor

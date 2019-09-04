@@ -4,6 +4,12 @@ import { QueryDocumentSnapshot, DocumentSnapshot } from './document';
 import { EcomError } from './error';
 
 export interface PriceDocumentData {
+  productId: string
+  priceListId: string
+  break: number
+  unitPrice: number
+  created: Date
+  modified: Date
 }
 
 export interface SetPriceDocumentData {

@@ -1,16 +1,21 @@
 import EcomClient from '../index';
+import { UserCollectionReference } from './user';
+import { DeveloperKeyCollectionReference } from './developer-key';
 import { ProductCollectionReference } from './product';
 import { CategoryCollectionReference } from './category';
+import { CategoryTreeDocumentReference } from './category-tree';
 import { ProductCategoryCollectionReference } from './product-category';
 import { PriceListCollectionReference } from './price-list';
-import { UserCollectionReference } from './user';
 import { ImageCollectionReference } from './image';
 
+
 interface collections {
-  user: UserCollectionReference | undefined
-  product: ProductCollectionReference | undefined
-  image: ImageCollectionReference | undefined
+  user: UserCollectionReference | undefined;
+  developerKeys: DeveloperKeyCollectionReference | undefined;
+  product: ProductCollectionReference | undefined;
+  image: ImageCollectionReference | undefined;
   category: CategoryCollectionReference | undefined;
+  categoryTree: CategoryTreeDocumentReference | undefined;
   productCategory: ProductCategoryCollectionReference | undefined;
   priceList: PriceListCollectionReference| undefined;
 }
@@ -23,9 +28,11 @@ export class Db {
     this._ecom = ecom;
     this._rootCollections = {
         user: undefined,
+        developerKeys: undefined,
         product: undefined,
         image: undefined,
         category: undefined,
+        categoryTree: undefined,
         productCategory: undefined,
         priceList: undefined
     }
@@ -36,6 +43,13 @@ export class Db {
       this._rootCollections.user = new UserCollectionReference(this._ecom, null);
     }
     return this._rootCollections.user;
+  }
+
+  get developerKeys(): DeveloperKeyCollectionReference {
+    if (!this._rootCollections.developerKeys) {
+      this._rootCollections.developerKeys = new DeveloperKeyCollectionReference(this._ecom, null);
+    }
+    return this._rootCollections.developerKeys;
   }
 
   get products(): ProductCollectionReference {
@@ -57,6 +71,13 @@ export class Db {
       this._rootCollections.category = new CategoryCollectionReference(this._ecom, null);
     }
     return this._rootCollections.category;
+  }
+
+  get categoryTree(): CategoryTreeDocumentReference {
+    if (!this._rootCollections.categoryTree) {
+      this._rootCollections.categoryTree = new CategoryTreeDocumentReference(this._ecom, 'categories-tree', this.categories);
+    }
+    return this._rootCollections.categoryTree;
   }
 
   get productCategory(): ProductCategoryCollectionReference {
